@@ -1,0 +1,77 @@
+{
+  "name": "antd-mobile-boilerplate",
+  "appid": "20000199",
+  "version": "1.0.0",
+  "description": "Best Practice Of Using React With Ant-Tool",
+  "boilerplateVersion": "1.1.0",
+  "scripts": {
+    "init": "lengjing init",
+    "start": "NODE_ENV=development dora -p 8001 --plugins webpack,@alipay/dora-plugin-domain",
+    "mock": "NODE_ENV=mock dora -p 8001 --plugins webpack",
+    "test": "atool-test",
+    "lint": "eslint test src mock",
+    "simulator": "dora -p 8001 --plugins 'webpack,livereload,config-manager?path=./mobile.config.js|simOpts,simulator'",
+    "liveoffline": "moggles -o www --config ./webpack.config.js --h5build -s -w",
+    "h5build": "moggles -o www --config ./webpack.config.js --h5build",
+    "h5build:portal": "RUN_ENV=alipay moggles -o www --config ./webpack.config.js --h5build portal",
+    "h5build:afwealth": "RUN_ENV=wealth moggles -o www --config ./webpack.config.js --h5build afwealth",
+    "h5build:taobao": "RUN_ENV=taobao moggles -o www --config ./webpack.config.js --h5build taobao",
+    "ci": "tnpm run lint && tnpm run test",
+    "build": "moggles -o www --config ./webpack.config.js",
+    "lengjing": "NODE_ENV=lengjing moggles -o www && lengjing publish",
+    "demo": "NODE_ENV=lengjing moggles -o www && lengjing demo"
+  },
+  "keywords": [
+    "standard"
+  ],
+  "entry": {},
+  "dependencies": {
+    "@ali/anima-getjson": "~2.0.4",
+    "@ali/anima-hd": "^4.0.0",
+    "@alipay/mtracker": "~3.0.0",
+    "antd-mobile": "^0.8.0",
+    "classnames": "^2.2.5",
+    "dva": "^1.0.0",
+    "fastclick": "^1.0.6",
+    "keymaster": "^1.6.2",
+    "react": "15.2.0",
+    "react-dom": "15.2.0"
+  },
+  "devDependencies": {
+    "@ali/ci": "^1.0.5",
+    "@alipay/dora-plugin-domain": "^0.0.1",
+    "@alipay/hybrid-configuration": "^0.2.3",
+    "@alipay/lengjing": "~0.0.21",
+    "@alipay/lengjing-webpack-plugin": "^0.0.6",
+    "@alipay/moggles": "^0.6.0",
+    "atool-build": "^0.7.15",
+    "atool-test": "^0.4.14",
+    "babel-eslint": "~6.0.0",
+    "babel-plugin-antd": "^0.5.1",
+    "babel-plugin-module-alias": "^1.6.0",
+    "babel-plugin-transform-runtime": "^6.12.0",
+    "babel-runtime": "^6.11.6",
+    "dora": "^0.3.3",
+    "dora-plugin-config-manager": "^0.2.3",
+    "dora-plugin-livereload": "^0.5.2",
+    "dora-plugin-simulator": "^0.2.0",
+    "dora-plugin-webpack": "^0.6.5",
+    "eslint": "2.x",
+    "eslint-config-anima": "^1.0.2",
+    "eslint-config-egg": "^2.0.0",
+    "eslint-plugin-react": "^6.0.0",
+    "html-webpack-plugin": "^2.16.0",
+    "less-plugin-rewrite-import": "^0.1.1",
+    "postcss-plugin-px2rem": "^0.6.0",
+    "webpack-visualizer-plugin": "^0.1.5"
+  },
+  "engines": {
+    "install-node": "4.6.0"
+  },
+  "tnpm": {
+    "mode": "npminstall"
+  },
+  "publishConfig": {
+    "registry": "http://registry.npm.alibaba-inc.com"
+  }
+}
