@@ -16,3 +16,7 @@ hs_err_pid*
 */target/
 
 */.settings/
+
+AsmMain/asm-5.2/doc/
+
+AsmMain/asm-5.2/examples/
