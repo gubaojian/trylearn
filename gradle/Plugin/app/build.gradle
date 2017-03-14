@@ -1,0 +1,176 @@
+import com.android.build.api.transform.Context
+import com.android.build.api.transform.DirectoryInput
+import com.android.build.api.transform.Format
+import com.android.build.api.transform.JarInput
+import com.android.build.api.transform.QualifiedContent
+import com.android.build.api.transform.Transform
+import com.android.build.api.transform.TransformException
+import com.android.build.api.transform.TransformInput
+import com.android.build.api.transform.TransformInvocation
+import com.android.build.api.transform.TransformOutputProvider
+import org.apache.commons.codec.digest.DigestUtils
+import org.apache.commons.io.FileUtils
+
+apply plugin: 'com.android.application'
+
+
+
+apply plugin: JSPatchPlugin
+
+
+JSPatch {
+    timeFormat = 'HH:mm:ss.SSS'
+    dateFormat = 'MM/dd/yyyy'
+}
+
+
+
+class JSPatchPlugin implements Plugin<Project> {
+    void apply(Project project) {
+
+        println("JSPatch registerTransform")
+        project.extensions.create("JSPatch", JSPatchConfigExtension)
+        println("JSPatch" + project.android)
+        project.android.registerTransform(new JSPatchTransform())
+    }
+}
+
+class JSPatchConfigExtension {
+    String timeFormat = "MM/dd/yyyyHH:mm:ss.SSS"
+    String dateFormat = "yyyy-MM-dd"
+}
+
+
+class JSPatchTransform extends Transform {
+
+    private final Logger logger = Logging.getLogger(JSPatchTransform)
+
+    @Override
+    String getName() {
+        return "JSPatch"
+    }
+
+    @Override
+    Set<QualifiedContent.ContentType> getInputTypes() {
+        return Collections.singleton(QualifiedContent.DefaultContentType.CLASSES);
+    }
+
+    @Override
+    Set<QualifiedContent.Scope> getScopes() {
+        return com.google.common.collect.ImmutableSet.of(QualifiedContent.Scope.PROJECT, QualifiedContent.Scope.PROJECT_LOCAL_DEPS, QualifiedContent.Scope.PROJECT_LOCAL_DEPS);
+    }
+
+    @Override
+    boolean isIncremental() {
+        return true;
+    }
+
+    @Override
+    void transform(final TransformInvocation invocation) throws IOException, TransformException, InterruptedException {
+
+        Context context = invocation.getContext();
+        Collection<TransformInput> inputs = invocation.inputs;
+        Collection<TransformInput> referencedInputs = invocation.referencedInputs;
+        TransformOutputProvider outputProvider = invocation.outputProvider;
+        boolean isIncremental = invocation.incremental;
+
+        println("JSPatch start transform")
+        println("JSPatch start transform")
+        println("JSPatch start transform")
+
+
+        outputProvider.deleteAll();
+        inputs.each {
+            TransformInput input->
+                input.directoryInputs.each {
+                    DirectoryInput directoryInput ->
+
+                        //BuryInject.injectDir(directoryInput.file.absolutePath,"com\\sasas\\dsdsd")
+                        // 获取output目录</strong></span>
+                        def dest = outputProvider.getContentLocation(directoryInput.name,
+                                directoryInput.contentTypes, directoryInput.scopes,
+                                Format.DIRECTORY);
+
+                        println("" + directoryInput.file + " transform" + dest);
+                        // 将input的目录复制到output指定目录
+                        FileUtils.copyDirectory(directoryInput.file, dest)
+                }
+
+                input.jarInputs.each {
+                    JarInput jarInput ->
+                        //jar文件一般是第三方依赖库jar文件
+
+                        // 重命名输出文件（同目录copyFile会冲突）
+                        def jarName = jarInput.name
+                        def md5Name = DigestUtils.md5Hex(jarInput.file.getAbsolutePath())
+                        if (jarName.endsWith(".jar")) {
+                            jarName = jarName.substring(0, jarName.length() - 4)
+                        }
+                        //生成输出路径
+                        def dest = outputProvider.getContentLocation(jarName,
+                                jarInput.contentTypes, jarInput.scopes, Format.JAR)
+
+                        println("jar " + jarInput.file + " transform " + dest)
+                        //将输入内容复制到输出
+                        FileUtils.copyFile(jarInput.file, dest)
+                }
+
+        }
+    }
+
+
+}
+
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+
+
+    defaultConfig {
+        applicationId "com.furture.plugin"
+        minSdkVersion 14
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+
+        jackOptions {
+            enabled false
+        }
+        dexOptions {
+            javaMaxHeapSize "4g"
+            preDexLibraries = false
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:25.1.0'
+    testCompile 'junit:junit:4.12'
+
+
+
+    provided gradleApi()
+    provided localGroovy()
+    provided 'com.android.tools.build:gradle:2.2.3'
+    compile 'commons-io:commons-io:2.4'
+    compile 'commons-codec:commons-codec:1.10'
+}
