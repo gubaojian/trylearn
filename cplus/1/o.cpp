@@ -6,6 +6,8 @@ T sum(T a, T b){
   return result;
 }
 
+
+
 template<class T, int N>
 T multi(T num){
   return num*N;
