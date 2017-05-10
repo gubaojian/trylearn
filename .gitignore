@@ -20,3 +20,5 @@ hs_err_pid*
 AsmMain/asm-5.2/doc/
 
 AsmMain/asm-5.2/examples/
+
+im/node_modules/
