@@ -12,7 +12,6 @@ public class Main {
          * 如果存在则创建
          * */
         long start = System.currentTimeMillis();
-        FileDBStore db = new FileDBStore("test.db");
 
         String str = "Repeatedly creating DataOutputStream and DataInputStream instances is not good for performance.\n" +
                 "\n" +
@@ -26,12 +25,13 @@ public class Main {
                 "It is up to you to figure out where your protocol's message boundaries ought to be. It depends entirely on the details of the data you are sending / receiving, and the way it is processed.";
 
         for(int i=0; i<1000; i++) {
+            FileDBStore db = new FileDBStore("test.db");
             db.put("22444" + i, str) ;
+            db.close();
         }
         //file.close();
-        db.put("22444", "333333333347333333333347333333333347333333333347333333333347333333333347333333333347");
 
-        System.out.println(db.getString("22444" + 1 ));
+        //System.out.println(db.getString("22444" + 1 ));
 
         System.out.println("used " + (System.currentTimeMillis() - start));
     }

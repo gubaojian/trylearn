@@ -40,7 +40,7 @@ public class FileDBStore {
     /**
      * 文件索引信息,包含文件的位置信息
      * */
-    private Map<String, Meta> fileMeta;
+    private Map<String, Meta> indexMeta;
 
 
 
@@ -51,9 +51,9 @@ public class FileDBStore {
      * */
     public FileDBStore(String file) throws IOException{
         String metaFile = file + Meta.FILE_SUFFIX;
-        fileMeta = MetaUtils.readMeta(metaFile);
+        indexMeta = MetaUtils.readMeta(metaFile);
         metaOutputStream = new MetaOutputStream(metaFile);
-        outputStream = new BlockOutputStream(file, fileMeta);
+        outputStream = new BlockOutputStream(file, indexMeta);
         dbFile = file;
     }
 
@@ -78,7 +78,7 @@ public class FileDBStore {
      * */
     public void put(String fileName, byte[] bts, boolean zip) throws IOException {
         synchronized (this) {
-            fileMeta.remove(fileName);
+            indexMeta.remove(fileName);
             int offset = 0;
             if(zip){
                 bts =  GZip.compress(bts, 0, bts.length);
@@ -90,10 +90,10 @@ public class FileDBStore {
             }
             outputStream.flush();
             if(zip){
-                Meta meta = fileMeta.get(fileName);
+                Meta meta = indexMeta.get(fileName);
                 meta.version = Meta.GZIP_VERSION;
             }
-            metaOutputStream.writeMeta(fileMeta.get(fileName));
+            metaOutputStream.writeMeta(indexMeta.get(fileName));
             metaOutputStream.flush();
         }
     }
@@ -113,7 +113,7 @@ public class FileDBStore {
      * 读取文件,若文件不存在,则返回空, 若文件存在,返回文件的内容
      * */
     public byte[] get(String fileName) throws IOException {
-        Meta meta = fileMeta.get(fileName);
+        Meta meta = indexMeta.get(fileName);
         if(meta == null){
             return  null;
         }
@@ -154,8 +154,20 @@ public class FileDBStore {
      * */
     public void close() throws IOException {
         synchronized (this) {
-            outputStream.close();
-            metaOutputStream.close();
+            if(outputStream != null) {
+                outputStream.close();
+                outputStream = null;
+            }
+            if(metaOutputStream != null) {
+                metaOutputStream.close();
+                metaOutputStream = null;
+            }
         }
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        close();
+        super.finalize();
     }
 }
