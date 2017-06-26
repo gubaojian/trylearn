@@ -12,34 +12,34 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * ¼òµ¥¸ßĞ§µÄĞ¡ÎÄ¼ş´æ´¢µÄÊı¾İ¿â,¿ÉÒÔ´æ´¢º£Á¿Ğ¡ÎÄ¼ş, µ¥¸öÎÄ¼ş²»³¬¹ı1G¡£
- * ¶à¸öĞ¡ÎÄ¼şºÏ²¢µ½Ò»¸öÎÄ¼şÖĞ, »ùÓÚAppendµÄÉè¼ÆÄ£Ê½, Ğ´Èë²»Ó°Ïì¶Á, ²¢·¢ĞÔÄÜºÃ¡£
- * Created by ½£°×(jianbai.gbj) on 2017/6/23.
+ * ç®€å•é«˜æ•ˆçš„å°æ–‡ä»¶å­˜å‚¨çš„æ•°æ®åº“,å¯ä»¥å­˜å‚¨æµ·é‡å°æ–‡ä»¶, å•ä¸ªæ–‡ä»¶ä¸è¶…è¿‡1Gã€‚
+ * å¤šä¸ªå°æ–‡ä»¶åˆå¹¶åˆ°ä¸€ä¸ªæ–‡ä»¶ä¸­, åŸºäºAppendçš„è®¾è®¡æ¨¡å¼, å†™å…¥ä¸å½±å“è¯», å¹¶å‘æ€§èƒ½å¥½ã€‚
+ * Created by å‰‘ç™½(jianbai.gbj) on 2017/6/23.
  */
 public class FileStore {
 
     /**
-     * »º´æ´óĞ¡
+     * ç¼“å­˜å¤§å°
      * */
     public  static final  int BLOCK_BUFFER_SIZE = 1024*1024;
 
     /**
-     * ÎÄ¼ş¿éĞ´²Ù×÷
+     * æ–‡ä»¶å—å†™æ“ä½œ
      * */
     private BlockOutputStream outputStream;
 
     /**
-     * ÎÄ¼şµÄÔ­ĞÅÏ¢Ğ´Èë
+     * æ–‡ä»¶çš„åŸä¿¡æ¯å†™å…¥
      * */
     private MetaOutputStream metaOutputStream;
 
     /**
-     * ´æ´æ´¢µÄÎÄ¼ş
+     * å­˜å­˜å‚¨çš„æ–‡ä»¶
      * */
     private String dbFile;
 
     /**
-     * ÎÄ¼şË÷ÒıĞÅÏ¢,°üº¬ÎÄ¼şµÄÎ»ÖÃĞÅÏ¢
+     * æ–‡ä»¶ç´¢å¼•ä¿¡æ¯,åŒ…å«æ–‡ä»¶çš„ä½ç½®ä¿¡æ¯
      * */
     private Map<String, Meta> indexMeta;
 
@@ -48,7 +48,7 @@ public class FileStore {
 
 
     /**
-     * ´´½¨Ò»¸öÎÄ¼şµÄ´æ´¢¹ÜÀíÆ÷
+     * åˆ›å»ºä¸€ä¸ªæ–‡ä»¶çš„å­˜å‚¨ç®¡ç†å™¨
      * */
     public FileStore(String file) throws IOException{
         String metaFile = file + Meta.FILE_SUFFIX;
@@ -60,7 +60,7 @@ public class FileStore {
 
 
     /**
-     * ´æ´¢ÎÄ¼şµ½Êı¾İ¿âÖĞ
+     * å­˜å‚¨æ–‡ä»¶åˆ°æ•°æ®åº“ä¸­
      * */
     public void put(String fileName, byte[] bts) throws IOException {
         boolean zip = false;
@@ -75,9 +75,9 @@ public class FileStore {
     }
 
     /**
-     * @param  fileName ÎÄÃ÷Ãû×Ö
-     * @param  bts  ×Ö½Ú¸öÊı
-     * ´æ´¢ÎÄ¼şµ½Êı¾İ¿âÖĞ, ÊÇ·ñÑ¹Ëõ
+     * @param  fileName æ–‡æ˜åå­—
+     * @param  bts  å­—èŠ‚ä¸ªæ•°
+     * å­˜å‚¨æ–‡ä»¶åˆ°æ•°æ®åº“ä¸­, æ˜¯å¦å‹ç¼©
      * */
     public void put(String fileName, byte[] bts, boolean zip) throws IOException {
         synchronized (this) {
@@ -97,7 +97,7 @@ public class FileStore {
     }
 
     /**
-     * ´æ´¢×Ö·û´®ÄÚÈİ,Ä¬ÈÏÑ¹Ëõ´æ´¢
+     * å­˜å‚¨å­—ç¬¦ä¸²å†…å®¹,é»˜è®¤å‹ç¼©å­˜å‚¨
      * */
     public void put(String fileName, String content) throws IOException {
          put(fileName, content.getBytes(), true);
@@ -108,7 +108,7 @@ public class FileStore {
     }
 
     /**
-     * ¶ÁÈ¡ÎÄ¼ş,ÈôÎÄ¼ş²»´æÔÚ,Ôò·µ»Ø¿Õ, ÈôÎÄ¼ş´æÔÚ,·µ»ØÎÄ¼şµÄÄÚÈİ
+     * è¯»å–æ–‡ä»¶,è‹¥æ–‡ä»¶ä¸å­˜åœ¨,åˆ™è¿”å›ç©º, è‹¥æ–‡ä»¶å­˜åœ¨,è¿”å›æ–‡ä»¶çš„å†…å®¹
      * */
     public byte[] get(String fileName) throws IOException {
         Meta meta = indexMeta.get(fileName);
@@ -136,7 +136,7 @@ public class FileStore {
     }
 
     /**
-     * »ñÈ¡ÎÄ¼şµÄÄÚÈİ,²¢×ª»»³É×Ö·û´®
+     * è·å–æ–‡ä»¶çš„å†…å®¹,å¹¶è½¬æ¢æˆå­—ç¬¦ä¸²
      * */
     public String getString(String fileName) throws IOException {
         byte[] bts = get(fileName);
@@ -149,7 +149,7 @@ public class FileStore {
 
 
     /**
-     * °ÑÊı¾İflushµ½´ÅÅÌ
+     * æŠŠæ•°æ®flushåˆ°ç£ç›˜
      * */
     public void flush() throws IOException {
         synchronized (this) {
@@ -163,7 +163,7 @@ public class FileStore {
     }
 
     /**
-     * ¹Ø±ÕÊı¾İ¿âµÄ²Ù×÷
+     * å…³é—­æ•°æ®åº“çš„æ“ä½œ
      * */
     public void close() throws IOException {
         synchronized (this) {
@@ -179,7 +179,7 @@ public class FileStore {
     }
 
     /**
-     * ·µ»ØÓĞĞ§ÎÄ¼şµÄÔªĞÅÏ¢
+     * è¿”å›æœ‰æ•ˆæ–‡ä»¶çš„å…ƒä¿¡æ¯
      * */
     public Map<String, Meta> getIndexMeta(){
         return indexMeta;

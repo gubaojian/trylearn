@@ -11,16 +11,16 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 /**
- * Created by 剑白(jianbai.gbj) on 2017/6/23.
+ * Created by 鍓戠櫧(jianbai.gbj) on 2017/6/23.
  */
 public class MetaUtils {
     /**
-     * 索引的文件的缓存
+     * 绱㈠紩鐨勬枃浠剁殑缂撳瓨
      * */
     private static final WeakHashMap<String, Map<String, Meta>> metaFileCache = new WeakHashMap<String, Map<String, Meta>>();
 
     /**
-     * 读取索引文件
+     * 璇诲彇绱㈠紩鏂囦欢
      * */
     public  static Map<String, Meta> readMeta(String metaFile) throws IOException{
         Map<String, Meta> fileMeta = metaFileCache.get(metaFile);

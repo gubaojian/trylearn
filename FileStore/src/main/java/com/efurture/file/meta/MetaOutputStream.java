@@ -4,13 +4,13 @@ import com.efurture.file.io.FormatOutputStream;
 import java.io.*;
 
 /**
- * Created by ½£°×(jianbai.gbj) on 2017/6/23.
- * ÎÄ¼şË÷ÒıµÄĞÅÏ¢
+ * Created by å‰‘ç™½(jianbai.gbj) on 2017/6/23.
+ * æ–‡ä»¶ç´¢å¼•çš„ä¿¡æ¯
  */
 public class MetaOutputStream {
 
     /**
-     * ¶ÁÈ¡ÎÄ¼şµÄÄÚÈİ
+     * å…ƒæ•°æ®æŒä¹…åŒ–
      * */
     private FormatOutputStream formatOutputStream = null;
 
@@ -19,18 +19,21 @@ public class MetaOutputStream {
     }
 
     /**
-     * Ğ´MetaĞÅÏ¢
+     * å†™Metaä¿¡æ¯
      * */
     public void  writeMeta(Meta meta) throws IOException {
          meta.write(formatOutputStream);
     }
 
+    /**
+     * åˆ·æ–°å…ƒæ•°æ®
+     * */
     public void  flush() throws IOException {
         formatOutputStream.flush();
     }
 
     /**
-     * ¹Ø±ÕĞ´ÈëµÄÁ÷ĞÅÏ¢
+     * å…³é—­å†™å…¥çš„æµä¿¡æ¯
      * */
     public void close() throws IOException {
         if (formatOutputStream != null) {

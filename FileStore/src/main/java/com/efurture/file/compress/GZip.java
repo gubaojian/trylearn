@@ -7,8 +7,8 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 /**
- * gzipÑ¹Ëõ·½Ê½, Ä¬ÈÏÄÚÈİÑ¹Ëõ·½Ê½
- * Created by ½£°×(jianbai.gbj) on 2017/6/23.
+ * gzipå‹ç¼©æ–¹å¼, é»˜è®¤å†…å®¹å‹ç¼©æ–¹å¼
+ * Created by å‰‘ç™½(jianbai.gbj) on 2017/6/23.
  */
 public class GZip {
 
@@ -16,7 +16,6 @@ public class GZip {
         ByteArrayOutputStream out = new ByteArrayOutputStream(bts.length);
         GZIPOutputStream outputStream = new GZIPOutputStream(out);
         outputStream.write(bts, off, len);
-        outputStream.flush();
         outputStream.finish();
         return out.toByteArray();
     }

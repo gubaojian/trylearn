@@ -11,19 +11,19 @@ import java.util.ArrayList;
 import java.util.Map;
 
 /**
- * Created by ½£°×(jianbai.gbj) on 2017/4/15.
- * ¶à¸ö·ÖÆ¬,´æ´¢µ½Ò»¸öÎÄ¼şÖĞ,¼õÉÙIO¿ªÏú, ¼õÉÙ²¢·¢µÄ¶ÁĞ´¡£
+ * Created by å‰‘ç™½(jianbai.gbj) on 2017/4/15.
+ * å¤šä¸ªåˆ†ç‰‡,å­˜å‚¨åˆ°ä¸€ä¸ªæ–‡ä»¶ä¸­,å‡å°‘IOå¼€é”€, å‡å°‘å¹¶å‘çš„è¯»å†™ã€‚
  */
 public class BlockOutputStream {
 
     /**
-     * »º´æ´óĞ¡
+     * ç¼“å­˜å¤§å°
      * */
     public  static final  int BLOCK_BUFFER_SIZE = 1024*1024;
 
 
     /**
-     * ÎÄ¼şµÄË÷ÒıÎ»ÖÃ
+     * æ–‡ä»¶çš„ç´¢å¼•ä½ç½®
      * */
     private long offset;
     private String fileName;
@@ -41,7 +41,7 @@ public class BlockOutputStream {
     }
 
     /**
-     * Ğ´ÈëÎÄ¼şµÄÄÚÈİ
+     * å†™å…¥æ–‡ä»¶çš„å†…å®¹
      * */
     public synchronized void write(String fileName, byte[] bts, int off, int len) throws IOException {
         int offset = off;
@@ -54,7 +54,7 @@ public class BlockOutputStream {
     }
 
     /**
-     * ·Ö¿éĞ´ÈëÎÄ¼şĞ´ÈëÎÄ¼şµÄÄÚÈİ, Ğ¡ÎÄ¼şÄÚÈİ½øĞĞºÏ²¢, bts×î´ó³ÌÎªblock´óĞ¡
+     * åˆ†å—å†™å…¥æ–‡ä»¶å†™å…¥æ–‡ä»¶çš„å†…å®¹, å°æ–‡ä»¶å†…å®¹è¿›è¡Œåˆå¹¶, btsæœ€å¤§ç¨‹ä¸ºblockå¤§å°
      * */
     protected synchronized void writeBlock(String fileName, byte[] bts, int off, int len) throws IOException {
         if(buffer == null){
