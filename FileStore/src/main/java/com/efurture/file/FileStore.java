@@ -6,16 +6,17 @@ import com.efurture.file.io.BlockOutputStream;
 import com.efurture.file.meta.Meta;
 import com.efurture.file.meta.MetaOutputStream;
 import com.efurture.file.meta.MetaUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Map;
 
 /**
- * 小文件存储的数据库,可以存储海量小文件, 单个文件不超过1G。
+ * 简单高效的小文件存储的数据库,可以存储海量小文件, 单个文件不超过1G。
  * 多个小文件合并到一个文件中, 基于Append的设计模式, 写入不影响读, 并发性能好。
  * Created by 剑白(jianbai.gbj) on 2017/6/23.
  */
-public class FileDBStore {
+public class FileStore {
 
     /**
      * 缓存大小
@@ -49,7 +50,7 @@ public class FileDBStore {
     /**
      * 创建一个文件的存储管理器
      * */
-    public FileDBStore(String file) throws IOException{
+    public FileStore(String file) throws IOException{
         String metaFile = file + Meta.FILE_SUFFIX;
         indexMeta = MetaUtils.readMeta(metaFile);
         metaOutputStream = new MetaOutputStream(metaFile);
@@ -74,6 +75,8 @@ public class FileDBStore {
     }
 
     /**
+     * @param  fileName 文明名字
+     * @param  bts  字节个数
      * 存储文件到数据库中, 是否压缩
      * */
     public void put(String fileName, byte[] bts, boolean zip) throws IOException {
@@ -147,6 +150,21 @@ public class FileDBStore {
         }
         return  new String(bts);
 
+    }
+
+
+    /**
+     * 把数据flush到磁盘
+     * */
+    public void flush() throws IOException {
+        synchronized (this) {
+            if(outputStream != null) {
+                outputStream.flush();
+            }
+            if(metaOutputStream != null) {
+                metaOutputStream.flush();
+            }
+        }
     }
 
     /**

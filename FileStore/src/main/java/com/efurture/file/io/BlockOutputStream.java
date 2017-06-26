@@ -17,6 +17,12 @@ import java.util.Map;
 public class BlockOutputStream {
 
     /**
+     * 缓存大小
+     * */
+    public  static final  int BLOCK_BUFFER_SIZE = 1024*1024;
+
+
+    /**
      * 文件的索引位置
      * */
     private long offset;

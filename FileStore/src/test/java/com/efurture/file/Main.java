@@ -30,7 +30,7 @@ public class Main {
                 "It is up to you to figure out where your protocol's message boundaries ought to be. It depends entirely on the details of the data you are sending / receiving, and the way it is processed.";
 
         for(int i=0; i<1000; i++) {
-            FileStore db = new FileStore("test.db");
+            FileStore db = new FileStore("test.store");
             db.put("22444" + i, str) ;
             db.close();
         }
