@@ -32,9 +32,9 @@ public class FileStore {
     public static final String META_SUFFIX = ".meta";
 
     /**
-     * 单个Store的大小,默认512MB
+     * 单个Store的大小,默认1024MB
      * */
-    public static final long STORE_FILE_SIZE = 1024*1024*512l;
+    public static final long STORE_FILE_SIZE = 1024*1024*1024l;
 
 
     /**
@@ -73,6 +73,7 @@ public class FileStore {
      * 创建一个文件的存储
      * */
     public FileStore(String dir) throws IOException{
+
         this.dir = dir;
         File file = new File(dir);
         if(!file.exists()){
@@ -102,7 +103,8 @@ public class FileStore {
                 fileMeta.putAll(MetaUtils.readMeta(dir + File.separator + meta));
             }
             if(metas.size() > 1) {
-                node = metas.size() - 1;
+                String meta = metas.get(metas.size() - 1);
+                node = Integer.parseInt(meta.split("\\.")[0]);
             }
         }
         newStore(node);
@@ -237,6 +239,13 @@ public class FileStore {
     }
 
     /**
+     * 压缩当前的存储器
+     * */
+    public void pack(){
+       
+    }
+
+    /**
      * 创建新的存储器
      * */
     private void newStore(int node) throws FileNotFoundException {
@@ -247,7 +256,7 @@ public class FileStore {
     }
 
     /**
-     * 返回有效文件的元信息
+     * 返回有效文件的元信息, key为文件名字,  Meta为文件的元信息
      * */
     public Map<String, Meta> getFileMeta(){
         return fileMeta;
@@ -255,10 +264,16 @@ public class FileStore {
 
 
 
+    /**
+     * 设置是否同步写入
+     * */
     public void setWriteSyn(boolean writeSyn) {
         this.writeSyn = writeSyn;
     }
 
+    /**
+     * 是否同步写入
+     * */
     public boolean isWriteSyn() {
         return writeSyn;
     }

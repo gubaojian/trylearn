@@ -10,6 +10,8 @@ public class Main {
 	// write your code here
 
         long start = System.currentTimeMillis();
+        FileStore db = new FileStore("store");
+        System.out.println("create store used " + (System.currentTimeMillis() - start));
 
         String str = "Repeatedly creating DataOutputStream and DataInputStream instances is not good for performance.\n" +
                 "\n" +
@@ -22,7 +24,6 @@ public class Main {
                 "\n" +
                 "It is up to you to figure out where your protocol's message boundaries ought to be. It depends entirely on the details of the data you are sending / receiving, and the way it is processed.";
 
-        FileStore db = new FileStore("store");
         for(int i=0; i<100000; i++) {
            db.put("22444" + i, str, false) ;
         }
