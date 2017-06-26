@@ -1,20 +1,15 @@
 package com.efurture.file;
 
 /**
- * Created by ½£°×(jianbai.gbj) on 2017/6/26.
+ * Created by (jianbai.gbj) on 2017/6/26.
  */
 public class TODO {
 
+
+
     /**
-     * 1¡¢¶Ábuffer´óÐ¡ÓÅ»¯
-     *
-     * 2¡¢¹ýÆÚÎÄ¼þÇåÀí²ßÂÔ,
-     *
-     *     1¡¢×î¼òµ¥µÄÇåÀí²ßÂÔ, Ö±½ÓÖØÐÂÃüÃûÎÄ¼þ,È»ºó°ÑÀÏÎÄ¼þµÄÄÚÈÝcopy¹ýÈ¥
-     *     2¡¢ÎÄ¼þµÄÃû×ÖÉú³ÉÆ÷,×Ô¶¯Éú³ÉÎÄ¼þµÄÃû×Ö¡£
-     *
-     * ºóÐøË¼¿¼ºÃ,ÔÚ×ö
-     * 2¡¢merge,Ð´ÑÓ³ÙÎÄ¼þµÄÐÔÄÜ, ÒÔ¼°×Ô¶¯·ÖÆ¬µÄ²ßÂÔ¡£
-     * 3¡¢×Ô¶¯flushÏß³Ì, ºÏ²¢Á÷´óÐ¡ÓÅ»¯
+     * 1ã€è¿‡æœŸæ–‡ä»¶æ¸…ç†ç­–ç•¥,é‡‡ç”¨é‡å‘½åçš„æ–¹å¼è¿›è¡Œå¤„ç†ã€‚
+     * 2ã€å¤šä¸ªæ–‡ä»¶å¤„ç†ï¼Œå•ä¸ªæ–‡ä»¶å¤§å°è®¾ç½®æˆ64MBï¼Ÿè‡ªåŠ¨è¿›è¡Œåˆ†æ¡¶ã€‚
+     * 3ã€flushä»¥åŠmergeè¿›è¡Œä¼˜åŒ–?
      * */
 }

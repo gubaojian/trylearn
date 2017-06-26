@@ -6,16 +6,9 @@ import java.io.IOException;
 public class Main {
 
 
-
-    /**
-     * 自动flush线程, 合并流大小优化
-     * */
     public static void main(String[] args) throws IOException {
 	// write your code here
 
-        /**
-         * 如果存在则创建
-         * */
         long start = System.currentTimeMillis();
 
         String str = "Repeatedly creating DataOutputStream and DataInputStream instances is not good for performance.\n" +
@@ -29,14 +22,14 @@ public class Main {
                 "\n" +
                 "It is up to you to figure out where your protocol's message boundaries ought to be. It depends entirely on the details of the data you are sending / receiving, and the way it is processed.";
 
-        for(int i=0; i<1000; i++) {
-            FileStore db = new FileStore("test.store");
-            db.put("22444" + i, str) ;
-            db.close();
+        FileStore db = new FileStore("store");
+        for(int i=0; i<100000; i++) {
+           db.put("22444" + i, str, false) ;
         }
+        //db.close();
         //file.close();
 
-        //System.out.println(db.getString("22444" + 1 ));
+        System.out.println(db.getString("22444" + (100000 - 1) ));
 
         System.out.println("used " + (System.currentTimeMillis() - start));
     }

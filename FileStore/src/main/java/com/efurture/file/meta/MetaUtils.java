@@ -2,10 +2,7 @@ package com.efurture.file.meta;
 
 import com.efurture.file.io.FormatInputStream;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -30,7 +27,7 @@ public class MetaUtils {
         fileMeta = new HashMap<String, Meta>();
         File file = new File(metaFile);
         if(!file.exists()){
-            return  fileMeta;
+            throw  new FileNotFoundException(metaFile + " meta file not exist");
         }
         FileInputStream fileInputStream = null;
         FormatInputStream formatInputStream = null;

@@ -1,6 +1,7 @@
 package com.efurture.file;
 
 import com.efurture.file.compress.GZip;
+import com.efurture.file.io.Block;
 import com.efurture.file.io.BlockFileInputStream;
 import com.efurture.file.io.BlockOutputStream;
 import com.efurture.file.meta.Meta;
@@ -8,8 +9,10 @@ import com.efurture.file.meta.MetaOutputStream;
 import com.efurture.file.meta.MetaUtils;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 简单高效的小文件存储的数据库,可以存储海量小文件, 单个文件不超过1G。
@@ -17,6 +20,22 @@ import java.util.Map;
  * Created by 剑白(jianbai.gbj) on 2017/6/23.
  */
 public class FileStore {
+
+    /**
+     * Store文件后缀名字
+     * */
+    public static final String NODE_SUFFIX = ".node";
+
+    /**
+     * Meta文件后缀名字
+     * */
+    public static final String META_SUFFIX = ".meta";
+
+    /**
+     * 单个Store的大小,默认512MB
+     * */
+    public static final long STORE_FILE_SIZE = 1024*1024*512l;
+
 
     /**
      * 文件块写操作
@@ -31,26 +50,62 @@ public class FileStore {
     /**
      * 存存储的文件
      * */
-    private String file;
+    private String dir;
 
     /**
-     * 文件索引信息,包含文件的位置信息
+     * 当前节点
      * */
-    private Map<String, Meta> indexMeta;
+    private int node;
 
-
-
+    /**
+     * 文件元信息,包含文件的位置信息
+     * */
+    private Map<String, Meta> fileMeta = new HashMap<String, Meta>();
 
 
     /**
-     * 创建一个文件的存储管理器
+     * 是否同步写入
      * */
-    public FileStore(String file) throws IOException{
-        String metaFile = file + Meta.FILE_SUFFIX;
-        indexMeta = MetaUtils.readMeta(metaFile);
-        metaOutputStream = new MetaOutputStream(metaFile);
-        outputStream = new BlockOutputStream(file, indexMeta);
-        this.file = file;
+    private boolean  writeSyn = true;
+
+
+    /**
+     * 创建一个文件的存储
+     * */
+    public FileStore(String dir) throws IOException{
+        this.dir = dir;
+        File file = new File(dir);
+        if(!file.exists()){
+            file.mkdirs();
+        }
+        if(!file.isDirectory()){
+            throw  new IllegalArgumentException("FileStore'path must be dir");
+        }
+        String[] stores = file.list();
+        node = 0;
+        if(stores != null){
+            List<String> metas  = new ArrayList<String>(4);
+            for(String store : stores){
+                if(store.endsWith(META_SUFFIX)){
+                    metas.add(store);
+                }
+            }
+            Collections.sort(metas, new Comparator<String>() {
+                @Override
+                public int compare(String o1, String o2) {
+                    int  num1 = Integer.parseInt(o1.split("\\.")[0]);
+                    int  num2 = Integer.parseInt(o2.split("\\.")[0]);
+                    return num1 - num2;
+                }
+            });
+            for(String meta : metas){
+                fileMeta.putAll(MetaUtils.readMeta(dir + File.separator + meta));
+            }
+            if(metas.size() > 1) {
+                node = metas.size() - 1;
+            }
+        }
+        newStore(node);
     }
 
 
@@ -76,18 +131,25 @@ public class FileStore {
      * */
     public void put(String fileName, byte[] bts, boolean zip) throws IOException {
         synchronized (this) {
-            indexMeta.remove(fileName);
+            int header = Meta.DEFAULT_HEADER;
             if(zip){
                 bts =  GZip.compress(bts, 0, bts.length);
+                header = Meta.GZIP_HEADER;
             }
-            outputStream.write(fileName, bts, 0, bts.length);
-            outputStream.flush();
-            if(zip){
-                Meta meta = indexMeta.get(fileName);
-                meta.version = Meta.GZIP_VERSION;
+            List<Block> blocks = outputStream.write(fileName, bts, 0, bts.length);
+            if(writeSyn) {
+                outputStream.flush();
             }
-            metaOutputStream.writeMeta(indexMeta.get(fileName));
-            metaOutputStream.flush();
+            Meta meta = Meta.createMeta(node, header, fileName, blocks);
+            fileMeta.put(fileName, meta);
+            metaOutputStream.writeMeta(meta);
+            if(writeSyn) {
+                metaOutputStream.flush();
+            }
+            if(outputStream.getSize() > STORE_FILE_SIZE){
+                node++;
+                newStore(node);
+            }
         }
     }
 
@@ -106,11 +168,12 @@ public class FileStore {
      * 读取文件,若文件不存在,则返回空, 若文件存在,返回文件的内容
      * */
     public byte[] get(String fileName) throws IOException {
-        Meta meta = indexMeta.get(fileName);
+        Meta meta = fileMeta.get(fileName);
         if(meta == null){
             return  null;
         }
-        BlockFileInputStream inputStream = new BlockFileInputStream(file, meta.blocks);
+        String nodeFile = dir + File.separator + meta.node + NODE_SUFFIX;
+        BlockFileInputStream inputStream = new BlockFileInputStream(nodeFile , meta.blocks);
         ByteArrayOutputStream data = new ByteArrayOutputStream(1024*4);
         byte[] buffer = new byte[1024*8];
         int read = 0;
@@ -119,15 +182,15 @@ public class FileStore {
         }
         inputStream.close();
         buffer = null;
-        if(meta.version == Meta.DEFAULT_VERSION){
+        if(meta.header == Meta.DEFAULT_HEADER){
             return data.toByteArray();
         }
 
-        if(meta.version == Meta.GZIP_VERSION){
+        if(meta.header == Meta.GZIP_HEADER){
             byte[] bts = data.toByteArray();
             return  GZip.uncompress(bts, 0, bts.length);
         }
-        throw  new RuntimeException("Meta Version Not Supported " + meta.version);
+        throw  new RuntimeException("Meta Version Not Supported " + meta.header);
     }
 
     /**
@@ -174,12 +237,35 @@ public class FileStore {
     }
 
     /**
-     * 返回有效文件的元信息
+     * 创建新的存储器
      * */
-    public Map<String, Meta> getIndexMeta(){
-        return indexMeta;
+    private void newStore(int node) throws FileNotFoundException {
+        String nodeFile = dir + File.separator + node + NODE_SUFFIX;
+        String metaFile = dir + File.separator + node + META_SUFFIX;
+        metaOutputStream = new MetaOutputStream(metaFile);
+        outputStream = new BlockOutputStream(nodeFile);
     }
 
+    /**
+     * 返回有效文件的元信息
+     * */
+    public Map<String, Meta> getFileMeta(){
+        return fileMeta;
+    }
+
+
+
+    public void setWriteSyn(boolean writeSyn) {
+        this.writeSyn = writeSyn;
+    }
+
+    public boolean isWriteSyn() {
+        return writeSyn;
+    }
+
+    /**
+     * 回收流信息
+     * */
     @Override
     protected void finalize() throws Throwable {
         close();

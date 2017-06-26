@@ -23,5 +23,6 @@ AsmMain/asm-5.2/examples/
 
 im/node_modules/
 *.db
+*.node
 *.store
 *.meta

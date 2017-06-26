@@ -6,12 +6,11 @@ import junit.framework.TestCase;
 import org.junit.Assert;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
 /**
- * Created by 剑白(jianbai.gbj) on 2017/6/26.
+ * Created by 锟斤拷锟斤拷(jianbai.gbj) on 2017/6/26.
  */
 public class BlockReadInputStreamTest extends TestCase {
 
@@ -20,11 +19,11 @@ public class BlockReadInputStreamTest extends TestCase {
     public void  testReadSmallBufferSize() throws IOException {
         String store = "target/testReadBuffer.store";
         String key = "testReadBuffer";
-        String content = "　　1997年7月1日，一场酣畅淋漓的大雨，洗刷掉香港150多年的屈辱。五星红旗伴随着雄浑激昂的《义勇军进行曲》徐徐升起。　\n" +
+        String content = "锟斤拷锟斤拷1997锟斤拷7锟斤拷1锟秸ｏ拷一锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷拇锟斤拷辏此拷锟斤拷锟斤拷150锟斤拷锟斤拷锟斤拷锟斤拷琛ｏ拷锟斤拷呛锟斤拷锟斤拷锟斤拷锟斤拷锟桔浑激锟斤拷锟侥★拷锟斤拷锟铰撅拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟金。★拷\n" +
                 "\n" +
-                "　　几番风雨，几多磨难，内地与香港同根同源，短暂的分离抵不过浓浓的血脉情深。\n" +
+                "锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟疥，锟斤拷锟斤拷磨锟窖ｏ拷锟节碉拷锟斤拷锟斤拷锟酵拷锟酵达拷锟斤拷锟斤拷莸姆锟斤拷锟街诧拷锟斤拷浓浓锟斤拷血锟斤拷锟斤拷锟筋。\n" +
                 "\n" +
-                "　　“团结统一的中华民族是海内外中华儿女共同的根。”在“一国两制”的基本国策下，二十年来，久别重聚的中华儿女始终坚守着民族团结统一之根本，香港这颗璀璨的东方明珠也愈加焕发出耀眼夺目的光彩。\n" +
+                "锟斤拷锟斤拷锟斤拷锟脚斤拷统一锟斤拷锟叫伙拷锟斤拷锟斤拷锟角猴拷锟斤拷锟斤拷锟叫伙拷锟斤拷女锟斤拷同锟侥革拷锟斤拷锟斤拷锟节★拷一锟斤拷锟斤拷锟狡★拷锟侥伙拷锟斤拷锟斤拷锟斤拷锟铰ｏ拷锟斤拷十锟斤拷锟斤拷锟斤拷锟矫憋拷锟截聚碉拷锟叫伙拷锟斤拷女始锟秸硷拷锟斤拷锟斤拷锟斤拷锟斤拷锟脚斤拷统一之锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟借驳亩锟斤拷锟斤拷锟斤拷锟揭诧拷锟斤拷踊锟斤拷锟斤拷锟揭拷鄱锟侥匡拷墓锟绞★拷\n" +
                 "\n";
         FileStore fileStore = new FileStore(store);
         fileStore.put(key, content);
@@ -32,7 +31,7 @@ public class BlockReadInputStreamTest extends TestCase {
         String value = fileStore.getString(key);
 
         Assert.assertEquals("value == content", value, content);
-        Map<String, Meta> indexMeta = fileStore.getIndexMeta();
+        Map<String, Meta> indexMeta = fileStore.getFileMeta();
         fileStore.close();
 
 
