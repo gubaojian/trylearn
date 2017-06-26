@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * Created by ����(jianbai.gbj) on 2017/6/23.
+ * Created by 剑白(jianbai.gbj) on 2017/6/23.
  */
 public class FormatOutputStream extends DataOutputStream{
 
@@ -28,11 +28,17 @@ public class FormatOutputStream extends DataOutputStream{
     }
 
 
+    /**
+     * 存储可变长度的int
+     * */
     public  void writeZInt(int val) throws IOException {
         int length = Bits.putInt(bts, val);
         out.write(bts, 0, length);
     }
 
+    /**
+     * 存储可变长度的long
+     * */
     public  void writeZLong(long val) throws IOException {
         int length = Bits.putLong(bts, val);
         out.write(bts, 0, length);

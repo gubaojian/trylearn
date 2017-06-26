@@ -7,7 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Created by ½£°×(jianbai.gbj) on 2017/6/23.
+ * è‡ªå®šä¹‰æ ¼å¼åŒ–è¾“å‡ºæµ
+ * Created by (jianbai.gbj) on 2017/6/23.
  */
 public class FormatInputStream extends DataInputStream{
 
@@ -27,7 +28,7 @@ public class FormatInputStream extends DataInputStream{
 
 
     /**
-     * ²ÉÓÃ±ä´æ´¢int
+     * å­˜å‚¨å¯å˜é•¿åº¦çš„int
      * */
     public int readZInt() throws IOException {
         int ch1 = in.read();
@@ -35,7 +36,7 @@ public class FormatInputStream extends DataInputStream{
             return  ch1;
         }
         bts[0] = (byte) ch1;
-        int remain = (ch1 >>> 6 & 0x3); //byteµÄ³¤¶È  00000011
+        int remain = (ch1 >>> 6 & 0x3); //byteï¿½Ä³ï¿½ï¿½ï¿½  00000011
         if(remain > 0){
             readFully(bts, 1, remain);
         }
@@ -43,7 +44,7 @@ public class FormatInputStream extends DataInputStream{
     }
 
     /**
-     * ²ÉÓÃ±ä´æ´¢long
+     * è¯»å–å¯å˜ç±»åž‹çš„long
      * */
     public long readZLong() throws IOException {
         int ch1 = in.read();
@@ -51,7 +52,7 @@ public class FormatInputStream extends DataInputStream{
             return  ch1;
         }
         bts[0] = (byte) ch1;
-        int remain = (ch1 >>> 5 & 0x7); //byteµÄ³¤¶È  00000111
+        int remain = (ch1 >>> 5 & 0x7); //byteï¿½Ä³ï¿½ï¿½ï¿½  00000111
         if(remain > 0){
             readFully(bts, 1, remain);
         }

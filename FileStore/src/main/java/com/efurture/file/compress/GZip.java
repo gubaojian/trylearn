@@ -12,6 +12,9 @@ import java.util.zip.GZIPOutputStream;
  */
 public class GZip {
 
+    /**
+     * 压缩
+     * */
     public static  byte[]  compress(byte[] bts, int off, int len) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream(bts.length);
         GZIPOutputStream outputStream = new GZIPOutputStream(out);
@@ -20,6 +23,9 @@ public class GZip {
         return out.toByteArray();
     }
 
+    /**
+     * 解压
+     * */
     public static byte[]  uncompress(byte[] bts,int off, int len) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(8192);
         GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(bts, off, len));

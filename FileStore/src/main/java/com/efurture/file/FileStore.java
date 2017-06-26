@@ -19,11 +19,6 @@ import java.util.Map;
 public class FileStore {
 
     /**
-     * 缓存大小
-     * */
-    public  static final  int BLOCK_BUFFER_SIZE = 1024*1024;
-
-    /**
      * 文件块写操作
      * */
     private BlockOutputStream outputStream;
@@ -36,7 +31,7 @@ public class FileStore {
     /**
      * 存存储的文件
      * */
-    private String dbFile;
+    private String file;
 
     /**
      * 文件索引信息,包含文件的位置信息
@@ -55,7 +50,7 @@ public class FileStore {
         indexMeta = MetaUtils.readMeta(metaFile);
         metaOutputStream = new MetaOutputStream(metaFile);
         outputStream = new BlockOutputStream(file, indexMeta);
-        dbFile = file;
+        this.file = file;
     }
 
 
@@ -115,7 +110,7 @@ public class FileStore {
         if(meta == null){
             return  null;
         }
-        BlockFileInputStream inputStream = new BlockFileInputStream(dbFile, meta.blocks);
+        BlockFileInputStream inputStream = new BlockFileInputStream(file, meta.blocks);
         ByteArrayOutputStream data = new ByteArrayOutputStream(1024*4);
         byte[] buffer = new byte[1024*8];
         int read = 0;

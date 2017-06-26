@@ -3,8 +3,8 @@ package com.efurture.file.io;
 import java.io.IOException;
 
 /**
- * µ¥¸öÇø¿é, Ã¿¸öÇø¿é´ú±íÒ»¸öÎÄ¼ş,²ÉÓÃ±ß³¤µÄblock±íÊ¾
- * Created by ½£°×(jianbai.gbj) on 2017/6/23.
+ * å•ä¸ªåŒºå—, æ¯ä¸ªåŒºå—ä»£è¡¨ä¸€ä¸ªæ–‡ä»¶,é‡‡ç”¨è¾¹é•¿çš„blockè¡¨ç¤º
+ * Created by å‰‘ç™½(jianbai.gbj) on 2017/6/23.
  */
 public class Block{
 
