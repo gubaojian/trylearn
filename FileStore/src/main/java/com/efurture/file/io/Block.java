@@ -39,4 +39,12 @@ public class Block{
         off = in.readZLong();
         len = in.readZInt();
     }
+
+    @Override
+    public String toString() {
+        return "Block{" +
+                "off=" + off +
+                ", len=" + len +
+                '}';
+    }
 }

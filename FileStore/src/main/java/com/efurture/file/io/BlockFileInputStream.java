@@ -7,14 +7,14 @@ import java.util.List;
 
 /**
  * Created by 剑白(jianbai.gbj) on 2017/4/15.
- * 读取合并的bucket中某个bucket的数据, 根据blocks块索引信息,进行查找读取。
- * FIXME Buffer 大小优化
+ * 根据blocks块索引信息,对文件内容进行读取,返回读取的块信息
  */
 public class BlockFileInputStream {
 
      private RandomAccessFile randomAccessFile;
      private List<Block> blocks;
      private int index;
+     private int blockRead;
 
      /**
       * 读取文件中制定block的内容
@@ -25,29 +25,29 @@ public class BlockFileInputStream {
      }
 
     /**
-     * 每次读取一个block, 返回读取的block的数据, buffer长度必须大于block的长度
+     * 每次读取一个block, 返回读取的block的数据, 若buffer大于block,则返回读取的字节数量
      * */
     public int  read(byte[] buffer, int offset) throws IOException {
         if(index >= blocks.size()){
+            blockRead = 0;
             return  -1;
         }
         Block block = blocks.get(index);
-        if((buffer.length - offset) < block.getLen()){
-            throw new IllegalArgumentException("buffer size must be big then block size");
-        }
         long position = block.getOff();
-        randomAccessFile.seek(position);
-        int read = 0;
-        while (block.getLen() > read){
-            int off = read + offset;
-            int len = randomAccessFile.read(buffer, off , block.getLen() - read);
-            if(len < 0){
-                break;
-            }
-            read +=len;
+        randomAccessFile.seek(position + blockRead);
+
+        int readLen = Math.min(buffer.length-offset, block.getLen() - blockRead);
+        int count = randomAccessFile.read(buffer, offset , readLen);
+        if(count < 0){
+            index ++;
+            return  count;
         }
-        index++;
-        return  block.getLen();
+        blockRead += count;
+        if(blockRead >= block.getLen()){
+            index++;
+            blockRead = 0;
+        }
+        return  count;
     }
 
 
@@ -55,6 +55,8 @@ public class BlockFileInputStream {
      * 关闭流信息
      * */
     public void  close() throws IOException {
+        blockRead = 0;
+        index = 0;
         randomAccessFile.close();
         randomAccessFile = null;
         blocks = null;

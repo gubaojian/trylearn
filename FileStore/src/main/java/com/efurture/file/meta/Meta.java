@@ -59,7 +59,7 @@ public class Meta {
         this.version = version;
         this.fileName = formatInputStream.readUTF();
         int length = formatInputStream.readZInt();
-        List<Block> blocks = new ArrayList<>(length);
+        List<Block> blocks = new ArrayList<Block>(length);
         for(int b=0; b<length; b++){
             Block block = new Block();
             block.read(formatInputStream);
@@ -69,4 +69,12 @@ public class Meta {
         return  true;
     }
 
+    @Override
+    public String toString() {
+        return "Meta{" +
+                "version=" + version +
+                ", fileName='" + fileName + '\'' +
+                ", blocks=" + blocks +
+                '}';
+    }
 }

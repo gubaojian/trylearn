@@ -82,15 +82,10 @@ public class FileStore {
     public void put(String fileName, byte[] bts, boolean zip) throws IOException {
         synchronized (this) {
             indexMeta.remove(fileName);
-            int offset = 0;
             if(zip){
                 bts =  GZip.compress(bts, 0, bts.length);
             }
-            while (offset < bts.length){
-                int length = Math.min(bts.length - offset, BLOCK_BUFFER_SIZE);
-                outputStream.write(fileName, bts, offset, length);
-                offset +=length;
-            }
+            outputStream.write(fileName, bts, 0, bts.length);
             outputStream.flush();
             if(zip){
                 Meta meta = indexMeta.get(fileName);
@@ -122,7 +117,7 @@ public class FileStore {
         }
         BlockFileInputStream inputStream = new BlockFileInputStream(dbFile, meta.blocks);
         ByteArrayOutputStream data = new ByteArrayOutputStream(1024*4);
-        byte[] buffer = new byte[1024*2];
+        byte[] buffer = new byte[1024*4];
         int read = 0;
         while ((read = inputStream.read(buffer, 0)) > 0){
             data.write(buffer, 0, read);
@@ -181,6 +176,13 @@ public class FileStore {
                 metaOutputStream = null;
             }
         }
+    }
+
+    /**
+     * 返回有效文件的元信息
+     * */
+    public Map<String, Meta> getIndexMeta(){
+        return indexMeta;
     }
 
     @Override

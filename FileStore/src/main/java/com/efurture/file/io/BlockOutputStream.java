@@ -40,13 +40,28 @@ public class BlockOutputStream {
         this.offset = (int)new File(fileName).length();
     }
 
-
     /**
      * 写入文件的内容
      * */
     public synchronized void write(String fileName, byte[] bts, int off, int len) throws IOException {
+        int offset = off;
+        int end = Math.min(off + len, bts.length);
+        while (offset < end){
+            int length = Math.min(end - offset, BLOCK_BUFFER_SIZE);
+            writeBlock(fileName, bts, offset, length);
+            offset +=length;
+        }
+    }
+
+    /**
+     * 分块写入文件写入文件的内容, 小文件内容进行合并, bts最大程为block大小
+     * */
+    protected synchronized void writeBlock(String fileName, byte[] bts, int off, int len) throws IOException {
         if(buffer == null){
-            buffer = new byte[FileStore.BLOCK_BUFFER_SIZE];
+            buffer = new byte[BLOCK_BUFFER_SIZE];
+        }
+        if(bts.length > BLOCK_BUFFER_SIZE){
+            throw new IllegalArgumentException("writeBlock buffer size must not larger than block size");
         }
         Meta meta =  this.indexMeta.get(fileName);
         if(meta == null){

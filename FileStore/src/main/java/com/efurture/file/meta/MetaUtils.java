@@ -17,7 +17,7 @@ public class MetaUtils {
     /**
      * 索引的文件的缓存
      * */
-    private static final WeakHashMap<String, Map<String, Meta>> metaFileCache = new WeakHashMap<>();
+    private static final WeakHashMap<String, Map<String, Meta>> metaFileCache = new WeakHashMap<String, Map<String, Meta>>();
 
     /**
      * 读取索引文件
@@ -27,7 +27,7 @@ public class MetaUtils {
         if(fileMeta != null){
             return  fileMeta;
         }
-        fileMeta = new HashMap<>();
+        fileMeta = new HashMap<String, Meta>();
         File file = new File(metaFile);
         if(!file.exists()){
             return  fileMeta;
