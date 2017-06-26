@@ -117,7 +117,7 @@ public class FileStore {
         }
         BlockFileInputStream inputStream = new BlockFileInputStream(dbFile, meta.blocks);
         ByteArrayOutputStream data = new ByteArrayOutputStream(1024*4);
-        byte[] buffer = new byte[1024*4];
+        byte[] buffer = new byte[1024*8];
         int read = 0;
         while ((read = inputStream.read(buffer, 0)) > 0){
             data.write(buffer, 0, read);
