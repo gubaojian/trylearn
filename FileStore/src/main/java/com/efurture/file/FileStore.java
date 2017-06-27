@@ -292,13 +292,15 @@ public class FileStore {
             File file = new File(dir + File.separator + meta);
             if(file.exists()){
                 file.delete();
-                System.out.println("pack meta " + file.getAbsolutePath());
+            }else{
+                System.err.println("warning meta file  lost " + file.getAbsolutePath());
             }
             String node = meta.substring(0, meta.length() - META_SUFFIX.length()) + NODE_SUFFIX;
             File nodeFile = new File(dir + File.separator + node);
             if(nodeFile.exists()){
                 nodeFile.delete();
-                System.out.println("pack node " + nodeFile.getAbsolutePath());
+            }else{
+                System.err.println("warning node data lost " + nodeFile.getAbsolutePath());
             }
         }
     }
