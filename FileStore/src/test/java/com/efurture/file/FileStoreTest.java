@@ -61,7 +61,7 @@ public class FileStoreTest extends TestCase {
         for(int i=0; i<100000; i++) {
             db.put(keyPrefix + i, value, false) ;
         }
-        Assert.assertTrue(db.getMemoryCache().size() < 0);
+        Assert.assertTrue(db.getMemoryCache().size() > 0);
 
 
         db.close();
