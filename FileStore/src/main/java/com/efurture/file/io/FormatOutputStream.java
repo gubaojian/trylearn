@@ -48,7 +48,7 @@ public class FormatOutputStream {
     }
 
     /**
-     * 写入String, 采用平台默认的编码
+     * 写入String, 采用平台独立的编码
      * */
     public void writeString(String str) throws IOException {
         writeZInt(str.length());

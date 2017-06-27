@@ -67,4 +67,11 @@ public class FileStoreTest extends TestCase {
         db.close();
     }
 
+
+    public void  testPack() throws IOException {
+        FileStore db = new FileStore("store");
+        db.setWriteSyn(false);
+        db.pack();
+        db.close();
+    }
 }

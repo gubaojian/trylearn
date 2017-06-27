@@ -48,6 +48,7 @@ public class FileStore {
     private List<String> zipFileSuffix = new ArrayList<String>();
     {
         zipFileSuffix.add(".dat");
+        zipFileSuffix.add(".z");
         zipFileSuffix.add(".txt");
         zipFileSuffix.add(".json");
         zipFileSuffix.add(".html");

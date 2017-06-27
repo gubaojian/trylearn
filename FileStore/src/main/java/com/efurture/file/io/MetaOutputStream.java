@@ -1,6 +1,4 @@
 package com.efurture.file.io;
-import com.efurture.file.io.BlockOutputStream;
-import com.efurture.file.io.FormatOutputStream;
 import com.efurture.file.meta.Meta;
 
 import java.io.*;
