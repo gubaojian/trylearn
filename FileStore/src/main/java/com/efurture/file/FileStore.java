@@ -4,13 +4,13 @@ import com.efurture.file.compress.GZip;
 import com.efurture.file.io.Block;
 import com.efurture.file.io.BlockFileInputStream;
 import com.efurture.file.io.BlockOutputStream;
+import com.efurture.file.io.FlushCallback;
 import com.efurture.file.meta.Meta;
-import com.efurture.file.meta.MetaOutputStream;
+import com.efurture.file.io.MetaOutputStream;
 import com.efurture.file.meta.MetaUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
@@ -39,13 +39,13 @@ public class FileStore {
     /**
      * 默认文件的大小
      * */
-    private final long storeFileSize = DEFAULT_STORE_FILE_SIZE;
+    private long storeFileSize = DEFAULT_STORE_FILE_SIZE;
 
 
     /**
      * 默认压缩的文件后缀名字
      * */
-    private final List<String> zipFileSuffix = new ArrayList<String>();
+    private List<String> zipFileSuffix = new ArrayList<String>();
     {
         zipFileSuffix.add(".dat");
         zipFileSuffix.add(".txt");
@@ -80,6 +80,11 @@ public class FileStore {
      * */
     private HashMap<String, Meta> fileMeta = new HashMap<String, Meta>();
 
+
+    /**
+     * 最近写入的缓存
+     * */
+    private LinkedHashMap<String, byte[]> nodeMemoryCache = new LinkedHashMap<String, byte[]>();
 
     /**
      * 是否同步写入
@@ -117,7 +122,7 @@ public class FileStore {
                 }
             });
             for(String meta : metas){
-                fileMeta.putAll(MetaUtils.readMeta(dir + File.separator + meta));
+                fileMeta.putAll(MetaUtils.readNextMeta(dir + File.separator + meta));
             }
             if(metas.size() > 0) {
                 String meta = metas.get(metas.size() - 1);
@@ -162,16 +167,15 @@ public class FileStore {
     private void putData(String fileName, byte[] bts, byte header) throws IOException {
         synchronized (this) {
             List<Block> blocks = outputStream.write(fileName, bts, 0, bts.length);
-            if(writeSyn) {
-                outputStream.flush();
-            }
+            nodeMemoryCache.remove(fileName);
+            nodeMemoryCache.put(fileName, bts);
             Meta meta = Meta.createMeta(header, fileName, node,  blocks);
             fileMeta.put(fileName, meta);
             metaOutputStream.writeMeta(meta);
             if(writeSyn) {
-                metaOutputStream.flush();
+                outputStream.flush();
             }
-            if(outputStream.getSize() > STORE_FILE_SIZE){
+            if(outputStream.getSize() > storeFileSize){
                 node++;
                 newStore(node);
             }
@@ -185,10 +189,28 @@ public class FileStore {
          put(fileName, content.getBytes(), true);
     }
 
+    /**
+     * 存储字符串内容,是否压缩存储
+     * */
     public void put(String fileName, String content, boolean zip) throws IOException {
         put(fileName, content.getBytes(), zip);
     }
 
+    /**
+     * 删除文件内容
+     * */
+    public void remove(String fileName) throws IOException {
+        Meta meta = fileMeta.get(fileName);
+        if(meta == null){
+            return;
+        }
+        synchronized (this){
+            meta.flag = Meta.FLAG_DELETE;
+            fileMeta.remove(fileName);
+            nodeMemoryCache.remove(fileName);
+            metaOutputStream.writeMeta(meta);
+        }
+    }
     /**
      * 读取文件,若文件不存在,则返回空, 若文件存在,返回文件的内容
      * */
@@ -197,21 +219,11 @@ public class FileStore {
         if(meta == null){
             return  null;
         }
-        String nodeFile = dir + File.separator + meta.node + NODE_SUFFIX;
-        BlockFileInputStream inputStream = new BlockFileInputStream(nodeFile , meta.blocks);
-        ByteArrayOutputStream data = new ByteArrayOutputStream(1024*8);
-        byte[] buffer = new byte[1024*8];
-        int read = 0;
-        while ((read = inputStream.read(buffer, 0)) > 0){
-            data.write(buffer, 0, read);
-        }
-        inputStream.close();
+        byte[] bts = getBlocks(fileName, meta);
         if(meta.header == Meta.DEFAULT_HEADER){
-            return data.toByteArray();
+            return  bts;
         }
-
         if(meta.header == Meta.GZIP_HEADER){
-            byte[] bts = data.toByteArray();
             return  GZip.uncompress(bts, 0, bts.length);
         }
         throw  new RuntimeException("Meta Version Not Supported " + meta.header);
@@ -219,9 +231,13 @@ public class FileStore {
 
 
     /**
-     * 根据meta元数据,返回block中的原始数据信息
+     * 根据meta元数据,返回block中的原始数据信息, 不进行解压处理
      * */
-    protected byte[] getBlocks(Meta meta) throws IOException {
+    private byte[] getBlocks(String fileName, Meta meta) throws IOException {
+        byte[] bts = nodeMemoryCache.get(fileName);
+        if(bts != null){
+            return  bts;
+        }
         String nodeFile = dir + File.separator + meta.node + NODE_SUFFIX;
         BlockFileInputStream inputStream = new BlockFileInputStream(nodeFile , meta.blocks);
         ByteArrayOutputStream data = new ByteArrayOutputStream(1024*8);
@@ -274,6 +290,7 @@ public class FileStore {
                 metaOutputStream.close();
                 metaOutputStream = null;
             }
+            nodeMemoryCache.clear();
         }
     }
 
@@ -297,7 +314,7 @@ public class FileStore {
             if(meta.flag == Meta.FLAG_DELETE){
                 continue;
             }
-            byte[] bts = getBlocks(entry.getValue());
+            byte[] bts = getBlocks(entry.getKey(), entry.getValue());
             if(bts == null){
                 System.err.println("warning key data lost " + entry.getKey());
                 continue;
@@ -325,11 +342,21 @@ public class FileStore {
     /**
      * 创建新的存储器
      * */
-    private void newStore(int node) throws FileNotFoundException {
+    private void newStore(int node) throws IOException {
+        close();
         String nodeFile = dir + File.separator + node + NODE_SUFFIX;
         String metaFile = dir + File.separator + node + META_SUFFIX;
-        metaOutputStream = new MetaOutputStream(metaFile);
         outputStream = new BlockOutputStream(nodeFile);
+        outputStream.setFlushCallback(new FlushCallback() {
+            @Override
+            public void onDisk(boolean close) throws IOException {
+                if(metaOutputStream != null) {
+                    metaOutputStream.flush();
+                }
+                nodeMemoryCache.clear();
+            }
+        });
+        metaOutputStream = new MetaOutputStream(metaFile);
     }
 
     /**
@@ -345,7 +372,16 @@ public class FileStore {
      * 设置是否同步写入
      * */
     public void setWriteSyn(boolean writeSyn) {
-        this.writeSyn = writeSyn;
+        synchronized (this) {
+            this.writeSyn = writeSyn;
+        }
+    }
+
+    /**
+     * 获取MemoryCache
+     * */
+    protected Map<String, byte[]> getMemoryCache(){
+        return  nodeMemoryCache;
     }
 
     /**
@@ -353,6 +389,34 @@ public class FileStore {
      * */
     public boolean isWriteSyn() {
         return writeSyn;
+    }
+
+    /**
+     * 单个store的大小
+     * */
+    public long getStoreFileSize() {
+        return storeFileSize;
+    }
+
+    /**
+     * 默认压缩的文件后缀
+     * */
+    public List<String> getZipFileSuffix() {
+        return zipFileSuffix;
+    }
+
+    /**
+     * 单个store的大小
+     * */
+    public void setStoreFileSize(long storeFileSize) {
+        this.storeFileSize = storeFileSize;
+    }
+
+    /**
+     * 默认压缩的文件后缀
+     * */
+    public void setZipFileSuffix(List<String> zipFileSuffix) {
+        this.zipFileSuffix = zipFileSuffix;
     }
 
     /**

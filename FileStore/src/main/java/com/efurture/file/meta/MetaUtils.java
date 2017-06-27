@@ -4,6 +4,7 @@ import com.efurture.file.FileStore;
 import com.efurture.file.io.FormatInputStream;
 
 import java.io.*;
+import java.nio.channels.FileChannel;
 import java.util.*;
 
 /**
@@ -18,7 +19,7 @@ public class MetaUtils {
     /**
      * 读取索引文件
      * */
-    public  static Map<String, Meta> readMeta(String metaFile) throws IOException{
+    public  static Map<String, Meta> readNextMeta(String metaFile) throws IOException{
         Map<String, Meta> fileMeta = metaFileCache.get(metaFile);
         if(fileMeta != null){
             return  fileMeta;
@@ -31,27 +32,60 @@ public class MetaUtils {
         FileInputStream fileInputStream = null;
         FormatInputStream formatInputStream = null;
         try {
+            long fileLength = file.length();
             fileInputStream = new FileInputStream(metaFile);
             formatInputStream = new FormatInputStream(new BufferedInputStream(fileInputStream));
-            Meta meta = new Meta();
-            boolean hasNextMeta = meta.read(formatInputStream);
-            while (hasNextMeta){
-                if(meta.flag == Meta.FLAG_DELETE){
-                    continue;
+            Meta meta = readNextMeta(formatInputStream);
+            while (meta != null){
+                if(meta.flag == Meta.FLAG_NORMAL){
+                    fileMeta.put(meta.fileName, meta);
                 }
-                fileMeta.put(meta.fileName, meta);
-                hasNextMeta = meta.read(formatInputStream);
+                meta = readNextMeta(formatInputStream);
+            }
+            if(formatInputStream.getPosition() != fileLength){
+                throw  new RuntimeException(formatInputStream.getPosition() + " byte read  not expect file length " + fileLength + " file " + file.getAbsolutePath());
             }
             metaFileCache.put(metaFile, fileMeta);
             return fileMeta;
-        }finally {
+        }catch (Exception e){
+            e.printStackTrace();
+            long position = 0;
             if (formatInputStream != null) {
+                position = formatInputStream.getPosition();
                 formatInputStream.close();
+                formatInputStream = null;
             }
             if (fileInputStream != null) {
                 fileInputStream.close();
+                formatInputStream = null;
+            }
+            System.err.println(file.getAbsolutePath() + " correct meta file to size " + position  + " from size " + file.length());
+            FileChannel outChan = new FileOutputStream(file, true).getChannel();
+            outChan.truncate(position);
+            outChan.close();
+            return  fileMeta;
+        }finally {
+            if (formatInputStream != null) {
+                formatInputStream.close();
+                formatInputStream = null;
+            }
+            if (fileInputStream != null) {
+                fileInputStream.close();
+                formatInputStream = null;
             }
         }
+    }
+
+    /**
+     * 读取Meta信息
+     * */
+    private static Meta readNextMeta(FormatInputStream formatInputStream) throws IOException {
+        Meta meta = new Meta();
+        boolean hasNextMeta = meta.read(formatInputStream);
+        if(hasNextMeta){
+            return meta;
+        }
+        return null;
     }
 
 

@@ -1,11 +1,15 @@
-package com.efurture.file.meta;
+package com.efurture.file.io;
+import com.efurture.file.io.BlockOutputStream;
 import com.efurture.file.io.FormatOutputStream;
+import com.efurture.file.meta.Meta;
 
 import java.io.*;
 
+import static com.efurture.file.io.IO.META_BUFFER_SIZE;
+
 /**
  * Created by 剑白(jianbai.gbj) on 2017/6/23.
- * 文件索引的信息
+ * 文件元数据的信息
  */
 public class MetaOutputStream {
 
@@ -15,7 +19,7 @@ public class MetaOutputStream {
     private FormatOutputStream formatOutputStream = null;
 
     public MetaOutputStream(String fileName) throws FileNotFoundException {
-        this.formatOutputStream = new FormatOutputStream(new BufferedOutputStream(new FileOutputStream(new File(fileName), true)));
+        this.formatOutputStream = new FormatOutputStream(new BufferedOutputStream(new FileOutputStream(new File(fileName), true), META_BUFFER_SIZE));
     }
 
     /**

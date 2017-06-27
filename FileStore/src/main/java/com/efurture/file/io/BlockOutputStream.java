@@ -1,15 +1,13 @@
 package com.efurture.file.io;
 
-import com.efurture.file.FileStore;
-import com.efurture.file.meta.Meta;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+
+import static com.efurture.file.io.IO.BLOCK_BUFFER_SIZE;
 
 /**
  * Created by 剑白(jianbai.gbj) on 2017/4/15.
@@ -17,10 +15,6 @@ import java.util.Map;
  */
 public class BlockOutputStream {
 
-    /**
-     * 缓存大小
-     * */
-    public  static final  int BLOCK_BUFFER_SIZE = 1024*1024;
 
 
     /**
@@ -32,7 +26,7 @@ public class BlockOutputStream {
     private FileOutputStream outputStream;
     private byte[] buffer;
     private int bufferOffset;
-
+    private FlushCallback flushCallback;
 
     public BlockOutputStream(String fileName) throws FileNotFoundException {
         this.fileName  = fileName;
@@ -84,6 +78,7 @@ public class BlockOutputStream {
             }
             getOutputStream().write(buffer, 0, bufferOffset);
             getOutputStream().close();
+            onFlushCallback(false);
             outputStream = null;
             bufferOffset = 0;
         }
@@ -100,6 +95,7 @@ public class BlockOutputStream {
             if(buffer != null){
                 getOutputStream().write(buffer, 0, bufferOffset);
                 getOutputStream().flush();
+                onFlushCallback(false);
                 bufferOffset = 0;
             }
         }
@@ -117,9 +113,21 @@ public class BlockOutputStream {
         }
         if(outputStream != null) {
             getOutputStream().close();
+            onFlushCallback(true);
             outputStream = null;
         }
         buffer = null;
+    }
+
+
+    public void setFlushCallback(FlushCallback flushCallback) {
+        this.flushCallback = flushCallback;
+    }
+
+    private void  onFlushCallback(boolean close) throws IOException {
+        if(flushCallback != null){
+            flushCallback.onDisk(close);
+        }
     }
 
 

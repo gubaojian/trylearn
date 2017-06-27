@@ -74,7 +74,7 @@ public class Meta {
      * */
     public void write(FormatOutputStream formatOutputStream ) throws IOException {
         formatOutputStream.writeUByte(header);
-        formatOutputStream.writeUTF(fileName);
+        formatOutputStream.writeString(fileName);
         formatOutputStream.writeZInt(node);
         formatOutputStream.writeByte(flag);
         formatOutputStream.writeZInt(blocks.size());
@@ -92,7 +92,7 @@ public class Meta {
             return  false;
         }
         this.header = header;
-        this.fileName = formatInputStream.readUTF();
+        this.fileName = formatInputStream.readString();
         this.node  = formatInputStream.readZInt();
         this.flag = formatInputStream.readByte();
         int length = formatInputStream.readZInt();
