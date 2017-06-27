@@ -36,7 +36,7 @@ public class FormatInputStream extends DataInputStream{
             return  ch1;
         }
         bts[0] = (byte) ch1;
-        int remain = (ch1 >>> 6 & 0x3); //byte�ĳ���  00000011
+        int remain = (ch1 >>> 6 & 0x3); //byte 00000011
         if(remain > 0){
             readFully(bts, 1, remain);
         }
@@ -52,10 +52,21 @@ public class FormatInputStream extends DataInputStream{
             return  ch1;
         }
         bts[0] = (byte) ch1;
-        int remain = (ch1 >>> 5 & 0x7); //byte�ĳ���  00000111
+        int remain = (ch1 >>> 5 & 0x7); //byte  00000111
         if(remain > 0){
             readFully(bts, 1, remain);
         }
         return  Bits.getLong(bts, 0);
+    }
+
+    /**
+     * 返回负数代表已经读取到文件的末尾
+     * */
+    public byte readUByte() throws IOException {
+        int ch1 = in.read();
+        if(ch1 < 0){
+            return  -1;
+        }
+        return (byte)(ch1);
     }
 }

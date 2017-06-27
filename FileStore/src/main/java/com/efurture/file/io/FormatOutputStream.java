@@ -43,4 +43,11 @@ public class FormatOutputStream extends DataOutputStream{
         int length = Bits.putLong(bts, val);
         out.write(bts, 0, length);
     }
+
+    /**
+     * 写入byte
+     * */
+    public void writeUByte(byte bt) throws IOException {
+        writeByte(bt);
+    }
 }

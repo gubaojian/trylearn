@@ -50,7 +50,7 @@ public class FileStore {
     /**
      * 存存储的文件
      * */
-    private String dir;
+    private File dir;
 
     /**
      * 当前节点
@@ -60,7 +60,7 @@ public class FileStore {
     /**
      * 文件元信息,包含文件的位置信息
      * */
-    private Map<String, Meta> fileMeta = new HashMap<String, Meta>();
+    private HashMap<String, Meta> fileMeta = new HashMap<String, Meta>();
 
 
     /**
@@ -73,9 +73,8 @@ public class FileStore {
      * 创建一个文件的存储
      * */
     public FileStore(String dir) throws IOException{
-
-        this.dir = dir;
-        File file = new File(dir);
+        this.dir = new File(dir);
+        File file = this.dir;
         if(!file.exists()){
             file.mkdirs();
         }
@@ -102,7 +101,7 @@ public class FileStore {
             for(String meta : metas){
                 fileMeta.putAll(MetaUtils.readMeta(dir + File.separator + meta));
             }
-            if(metas.size() > 1) {
+            if(metas.size() > 0) {
                 String meta = metas.get(metas.size() - 1);
                 node = Integer.parseInt(meta.split("\\.")[0]);
             }
@@ -132,17 +131,24 @@ public class FileStore {
      * 存储文件到数据库中, 是否压缩
      * */
     public void put(String fileName, byte[] bts, boolean zip) throws IOException {
+        byte header = Meta.DEFAULT_HEADER;
+        if(zip){
+            bts =  GZip.compress(bts, 0, bts.length);
+            header = Meta.GZIP_HEADER;
+        }
+        putData(fileName, bts, header);
+    }
+
+    /**
+     * 保存文件的信息, header代表数据的标示
+     * */
+    private void putData(String fileName, byte[] bts, byte header) throws IOException {
         synchronized (this) {
-            int header = Meta.DEFAULT_HEADER;
-            if(zip){
-                bts =  GZip.compress(bts, 0, bts.length);
-                header = Meta.GZIP_HEADER;
-            }
             List<Block> blocks = outputStream.write(fileName, bts, 0, bts.length);
             if(writeSyn) {
                 outputStream.flush();
             }
-            Meta meta = Meta.createMeta(node, header, fileName, blocks);
+            Meta meta = Meta.createMeta(header, fileName, node,  blocks);
             fileMeta.put(fileName, meta);
             metaOutputStream.writeMeta(meta);
             if(writeSyn) {
@@ -176,14 +182,13 @@ public class FileStore {
         }
         String nodeFile = dir + File.separator + meta.node + NODE_SUFFIX;
         BlockFileInputStream inputStream = new BlockFileInputStream(nodeFile , meta.blocks);
-        ByteArrayOutputStream data = new ByteArrayOutputStream(1024*4);
+        ByteArrayOutputStream data = new ByteArrayOutputStream(1024*8);
         byte[] buffer = new byte[1024*8];
         int read = 0;
         while ((read = inputStream.read(buffer, 0)) > 0){
             data.write(buffer, 0, read);
         }
         inputStream.close();
-        buffer = null;
         if(meta.header == Meta.DEFAULT_HEADER){
             return data.toByteArray();
         }
@@ -193,6 +198,23 @@ public class FileStore {
             return  GZip.uncompress(bts, 0, bts.length);
         }
         throw  new RuntimeException("Meta Version Not Supported " + meta.header);
+    }
+
+
+    /**
+     * 根据meta元数据,返回block中的原始数据信息
+     * */
+    protected byte[] getBlocks(Meta meta) throws IOException {
+        String nodeFile = dir + File.separator + meta.node + NODE_SUFFIX;
+        BlockFileInputStream inputStream = new BlockFileInputStream(nodeFile , meta.blocks);
+        ByteArrayOutputStream data = new ByteArrayOutputStream(1024*8);
+        byte[] buffer = new byte[1024*8];
+        int read = 0;
+        while ((read = inputStream.read(buffer, 0)) > 0){
+            data.write(buffer, 0, read);
+        }
+        inputStream.close();
+        return  data.toByteArray();
     }
 
     /**
@@ -239,10 +261,46 @@ public class FileStore {
     }
 
     /**
-     * 压缩当前的存储器
+     * 压缩当前的存储器, 读取当前节点, 然后把数据写入新的节点,来完成压缩。
+     * 若数据
      * */
-    public void pack(){
-       
+    public void pack() throws IOException {
+        int packEnd = node;
+        HashMap<String, Meta> packMap;
+        List<String> sortMeta = null;
+        synchronized (this){
+            sortMeta = MetaUtils.listSortMeta(dir);
+            node++;
+            newStore(node);
+            packMap = (HashMap<String, Meta>) fileMeta.clone();
+        }
+        Set<Map.Entry<String,Meta>>  entrySet = packMap.entrySet();
+        for(Map.Entry<String,Meta> entry : entrySet){
+            Meta meta = entry.getValue();
+            if(meta.flag == Meta.FLAG_DELETE){
+                continue;
+            }
+            byte[] bts = getBlocks(entry.getValue());
+            if(bts == null){
+                System.err.println("warning key data lost " + entry.getKey());
+                continue;
+            }
+            putData(entry.getKey(), bts, meta.header);
+        }
+
+        for(String meta : sortMeta){
+            File file = new File(dir + File.separator + meta);
+            if(file.exists()){
+                file.delete();
+                System.out.println("pack meta " + file.getAbsolutePath());
+            }
+            String node = meta.substring(0, meta.length() - META_SUFFIX.length()) + NODE_SUFFIX;
+            File nodeFile = new File(dir + File.separator + node);
+            if(nodeFile.exists()){
+                nodeFile.delete();
+                System.out.println("pack node " + nodeFile.getAbsolutePath());
+            }
+        }
     }
 
     /**

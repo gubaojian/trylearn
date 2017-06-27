@@ -27,10 +27,12 @@ public class Main {
         for(int i=0; i<100000; i++) {
            db.put("22444" + i, str, false) ;
         }
-        //db.close();
         //file.close();
 
         System.out.println(db.getString("22444" + (100000 - 1) ));
+
+
+        db.close();
 
         System.out.println("used " + (System.currentTimeMillis() - start));
     }
