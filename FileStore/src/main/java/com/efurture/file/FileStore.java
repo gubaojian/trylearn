@@ -45,14 +45,12 @@ public class FileStore {
     /**
      * 默认压缩的文件后缀名字
      * */
-    private List<String> zipFileSuffix = new ArrayList<String>();
+    private List<String> excludeZipFileSuffix = new ArrayList<String>();
     {
-        zipFileSuffix.add(".dat");
-        zipFileSuffix.add(".z");
-        zipFileSuffix.add(".txt");
-        zipFileSuffix.add(".json");
-        zipFileSuffix.add(".html");
-        zipFileSuffix.add(".htm");
+        excludeZipFileSuffix.add(".png");
+        excludeZipFileSuffix.add(".jpeg");
+        excludeZipFileSuffix.add(".gif");
+        excludeZipFileSuffix.add(".jpg");
     }
 
 
@@ -138,10 +136,10 @@ public class FileStore {
      * 存储文件到数据库中
      * */
     public void put(String fileName, byte[] bts) throws IOException {
-        boolean zip = false;
-        for(String suffix : zipFileSuffix){
+        boolean zip = true;
+        for(String suffix : excludeZipFileSuffix){
             if(fileName.endsWith(suffix)){
-                zip = true;
+                zip = false;
                 break;
             }
         }
@@ -156,8 +154,11 @@ public class FileStore {
     public void put(String fileName, byte[] bts, boolean zip) throws IOException {
         byte header = Meta.DEFAULT_HEADER;
         if(zip){
-            bts =  GZip.compress(bts, 0, bts.length);
-            header = Meta.GZIP_HEADER;
+            byte []  result =  GZip.compress(bts, 0, bts.length);
+            if(result.length < bts.length){
+                bts = result;
+                header = Meta.GZIP_HEADER;
+            }
         }
         putData(fileName, bts, header);
     }
@@ -402,8 +403,8 @@ public class FileStore {
     /**
      * 默认压缩的文件后缀
      * */
-    public List<String> getZipFileSuffix() {
-        return zipFileSuffix;
+    public List<String> getExcludeZipFileSuffix() {
+        return excludeZipFileSuffix;
     }
 
     /**
@@ -416,8 +417,8 @@ public class FileStore {
     /**
      * 默认压缩的文件后缀
      * */
-    public void setZipFileSuffix(List<String> zipFileSuffix) {
-        this.zipFileSuffix = zipFileSuffix;
+    public void setExcludeZipFileSuffix(List<String> excludeZipFileSuffix) {
+        this.excludeZipFileSuffix = excludeZipFileSuffix;
     }
 
     /**
