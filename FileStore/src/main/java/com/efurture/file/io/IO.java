@@ -5,7 +5,7 @@ import java.nio.charset.Charset;
 /**
  * Created by 剑白(jianbai.gbj) on 2017/6/27.
  */
-class IO {
+public  class IO {
 
     /**
      * 存储的编码

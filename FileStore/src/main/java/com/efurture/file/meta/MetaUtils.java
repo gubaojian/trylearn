@@ -6,6 +6,7 @@ import com.efurture.file.io.FormatInputStream;
 import java.io.*;
 import java.nio.channels.FileChannel;
 import java.util.*;
+import java.util.zip.GZIPInputStream;
 
 /**
  * Created by 剑白(jianbai.gbj) on 2017/6/23.
@@ -34,7 +35,7 @@ public class MetaUtils {
         try {
             long fileLength = file.length();
             fileInputStream = new FileInputStream(metaFile);
-            formatInputStream = new FormatInputStream(new BufferedInputStream(fileInputStream));
+            formatInputStream = new FormatInputStream(new GZIPInputStream(new BufferedInputStream(fileInputStream)));
             Meta meta = readNextMeta(formatInputStream);
             while (meta != null){
                 if(meta.flag == Meta.FLAG_NORMAL){
@@ -42,7 +43,7 @@ public class MetaUtils {
                 }
                 meta = readNextMeta(formatInputStream);
             }
-            if(formatInputStream.getPosition() != fileLength){
+            if(formatInputStream.getPosition() < fileLength){
                 throw  new RuntimeException(formatInputStream.getPosition() + " byte read  not expect file length " + fileLength + " file " + file.getAbsolutePath());
             }
             metaFileCache.put(metaFile, fileMeta);

@@ -20,6 +20,7 @@ public class GZip {
         GZIPOutputStream outputStream = new GZIPOutputStream(out);
         outputStream.write(bts, off, len);
         outputStream.finish();
+        outputStream.close();
         return out.toByteArray();
     }
 

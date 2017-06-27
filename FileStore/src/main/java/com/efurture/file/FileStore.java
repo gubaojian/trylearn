@@ -6,7 +6,7 @@ import com.efurture.file.io.BlockFileInputStream;
 import com.efurture.file.io.BlockOutputStream;
 import com.efurture.file.io.FlushCallback;
 import com.efurture.file.meta.Meta;
-import com.efurture.file.io.MetaOutputStream;
+import com.efurture.file.meta.MetaOutputStream;
 import com.efurture.file.meta.MetaUtils;
 
 import java.io.ByteArrayOutputStream;

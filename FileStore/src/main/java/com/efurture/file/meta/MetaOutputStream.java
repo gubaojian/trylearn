@@ -1,7 +1,10 @@
-package com.efurture.file.io;
+package com.efurture.file.meta;
+import com.efurture.file.io.BlockOutputStream;
+import com.efurture.file.io.FormatOutputStream;
 import com.efurture.file.meta.Meta;
 
 import java.io.*;
+import java.util.zip.GZIPOutputStream;
 
 import static com.efurture.file.io.IO.META_BUFFER_SIZE;
 
@@ -16,8 +19,8 @@ public class MetaOutputStream {
      * */
     private FormatOutputStream formatOutputStream = null;
 
-    public MetaOutputStream(String fileName) throws FileNotFoundException {
-        this.formatOutputStream = new FormatOutputStream(new BufferedOutputStream(new FileOutputStream(new File(fileName), true), META_BUFFER_SIZE));
+    public MetaOutputStream(String fileName) throws IOException {
+        this.formatOutputStream = new FormatOutputStream(new GZIPOutputStream( new BufferedOutputStream(new FileOutputStream(new File(fileName), true), META_BUFFER_SIZE)));
     }
 
     /**
