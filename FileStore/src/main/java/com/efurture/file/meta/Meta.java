@@ -69,6 +69,23 @@ public class Meta {
         meta.blocks = blocks;
         return  meta;
     }
+
+
+
+    /**
+     * 是否是同一个meta
+     * */
+    public boolean isSameMeta(Meta meta){
+        if(meta == this){
+            return  true;
+        }
+        if (header != meta.header) return false;
+        if (node != meta.node) return false;
+        if (flag != meta.flag) return false;
+        if (fileName != null ? !fileName.equals(meta.fileName) : meta.fileName != null) return false;
+        return blocks != null ? blocks.equals(meta.blocks) : meta.blocks == null;
+    }
+
     /**
      * 写入Meta信息
      * */

@@ -20,7 +20,8 @@ public class MetaUtils {
     /**
      * 读取索引文件
      * */
-    public  static Map<String, Meta> readNextMeta(String metaFile) throws IOException{
+    public  static Map<String, Meta> readMeta(String metaFile) throws IOException{
+        long start = System.currentTimeMillis();
         Map<String, Meta> fileMeta = metaFileCache.get(metaFile);
         if(fileMeta != null){
             return  fileMeta;
@@ -36,17 +37,20 @@ public class MetaUtils {
             long fileLength = file.length();
             fileInputStream = new FileInputStream(metaFile);
             formatInputStream = new FormatInputStream(new GZIPInputStream(new BufferedInputStream(fileInputStream)));
+            int count = 0;
             Meta meta = readNextMeta(formatInputStream);
             while (meta != null){
                 if(meta.flag == Meta.FLAG_NORMAL){
                     fileMeta.put(meta.fileName, meta);
                 }
                 meta = readNextMeta(formatInputStream);
+                count ++;
             }
             if(formatInputStream.getPosition() < fileLength){
                 throw  new RuntimeException(formatInputStream.getPosition() + " byte read  not expect file length " + fileLength + " file " + file.getAbsolutePath());
             }
             metaFileCache.put(metaFile, fileMeta);
+            System.out.println(count + " used " + (System.currentTimeMillis() - start));
             return fileMeta;
         }catch (Exception e){
             e.printStackTrace();

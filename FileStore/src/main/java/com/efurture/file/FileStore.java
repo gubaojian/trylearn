@@ -1,10 +1,7 @@
 package com.efurture.file;
 
 import com.efurture.file.compress.GZip;
-import com.efurture.file.io.Block;
-import com.efurture.file.io.BlockFileInputStream;
-import com.efurture.file.io.BlockOutputStream;
-import com.efurture.file.io.FlushCallback;
+import com.efurture.file.io.*;
 import com.efurture.file.meta.Meta;
 import com.efurture.file.meta.MetaOutputStream;
 import com.efurture.file.meta.MetaUtils;
@@ -121,7 +118,9 @@ public class FileStore {
                 }
             });
             for(String meta : metas){
-                fileMeta.putAll(MetaUtils.readNextMeta(dir + File.separator + meta));
+                long start = System.currentTimeMillis();
+                fileMeta.putAll(MetaUtils.readMeta(this.dir.getAbsolutePath() + File.separator + meta));
+                System.out.println(fileMeta.size() + " used " + (System.currentTimeMillis() - start));
             }
             if(metas.size() > 0) {
                 String meta = metas.get(metas.size() - 1);
@@ -240,7 +239,7 @@ public class FileStore {
         if(bts != null){
             return  bts;
         }
-        String nodeFile = dir + File.separator + meta.node + NODE_SUFFIX;
+        String nodeFile = dir.getAbsolutePath() + File.separator + meta.node + NODE_SUFFIX;
         BlockFileInputStream inputStream = new BlockFileInputStream(nodeFile , meta.blocks);
         ByteArrayOutputStream data = new ByteArrayOutputStream(1024*8);
         byte[] buffer = new byte[1024*8];
@@ -301,42 +300,51 @@ public class FileStore {
      * 若数据
      * */
     public void pack() throws IOException {
-        int packEnd = node;
-        HashMap<String, Meta> packMap;
+        if(dir.getFreeSpace() <= storeFileSize*IO.PACK_NODE_FACTOR){
+            System.err.println("none empty disk space for pack node");
+           return;
+        }
+
         List<String> sortMeta = null;
         synchronized (this){
             sortMeta = MetaUtils.listSortMeta(dir);
             node++;
             newStore(node);
-            packMap = (HashMap<String, Meta>) fileMeta.clone();
         }
-        Set<Map.Entry<String,Meta>>  entrySet = packMap.entrySet();
-        for(Map.Entry<String,Meta> entry : entrySet){
-            Meta meta = entry.getValue();
-            if(meta.flag == Meta.FLAG_DELETE){
-                continue;
+        for(String metaFileName : sortMeta){
+            File metaFile = new File(dir.getAbsolutePath() + File.separator + metaFileName);
+            if(!metaFile.exists()){
+                System.err.println("warning metaFileName metaFile  lost " + metaFile.getAbsolutePath());
+            }else {
+                Map<String, Meta> packNodeMetaMap = MetaUtils.readMeta(metaFile.getAbsolutePath());
+                Set<Map.Entry<String, Meta>> entrySet = packNodeMetaMap.entrySet();
+                for (Map.Entry<String, Meta> entry : entrySet) {
+                    Meta meta = entry.getValue();
+                    if (meta.flag == Meta.FLAG_DELETE) {
+                        continue;
+                    }
+                    Meta newMeta = fileMeta.get(entry.getKey());
+                    if (newMeta == null) {
+                        continue;
+                    }
+                    if (!meta.isSameMeta(newMeta)) {
+                        continue;
+                    }
+                    byte[] bts = getBlocks(entry.getKey(), entry.getValue());
+                    if (bts == null) {
+                        System.err.println("warning key data lost " + entry.getKey());
+                        continue;
+                    }
+                    putData(entry.getKey(), bts, meta.header);
+                }
+                metaFile.delete();
             }
-            byte[] bts = getBlocks(entry.getKey(), entry.getValue());
-            if(bts == null){
-                System.err.println("warning key data lost " + entry.getKey());
-                continue;
-            }
-            putData(entry.getKey(), bts, meta.header);
-        }
-
-        for(String meta : sortMeta){
-            File file = new File(dir + File.separator + meta);
-            if(file.exists()){
-                file.delete();
-            }else{
-                System.err.println("warning meta file  lost " + file.getAbsolutePath());
-            }
-            String node = meta.substring(0, meta.length() - META_SUFFIX.length()) + NODE_SUFFIX;
-            File nodeFile = new File(dir + File.separator + node);
+            String nodeFileName = metaFileName.substring(0, metaFileName.length() - META_SUFFIX.length()) + NODE_SUFFIX;
+            File nodeFile = new File(dir.getAbsolutePath() + File.separator + nodeFileName);
             if(nodeFile.exists()){
                 nodeFile.delete();
             }else{
-                System.err.println("warning node data lost " + nodeFile.getAbsolutePath());
+                System.err.println("warning nodeFileName data lost " + nodeFile.getAbsolutePath());
             }
         }
     }
@@ -346,8 +354,8 @@ public class FileStore {
      * */
     private void newStore(int node) throws IOException {
         close();
-        String nodeFile = dir + File.separator + node + NODE_SUFFIX;
-        String metaFile = dir + File.separator + node + META_SUFFIX;
+        String nodeFile = dir.getAbsolutePath() + File.separator + node + NODE_SUFFIX;
+        String metaFile = dir.getAbsolutePath() + File.separator + node + META_SUFFIX;
         outputStream = new BlockOutputStream(nodeFile);
         outputStream.setFlushCallback(new FlushCallback() {
             @Override

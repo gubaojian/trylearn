@@ -1,18 +1,20 @@
-package com.efurture.file;
+package com.efurture.db;
 
-
-import java.io.IOException;
+import org.rocksdb.Options;
+import org.rocksdb.RocksDB;
+import org.rocksdb.RocksDBException;
 
 public class Main {
+    static {
+        RocksDB.loadLibrary();
+    }
 
-
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws RocksDBException {
 	// write your code here
-
-        long start = System.currentTimeMillis();
-        FileStore db = new FileStore("store");
-        System.out.println("create store used " + (System.currentTimeMillis() - start));
-        db.setWriteSyn(false);
+         long start = System.currentTimeMillis();
+        Options options = new Options();
+        options.setCreateIfMissing(true);
+        RocksDB rocksDB = RocksDB.open(options, "store");
         String str = "Repeatedly creating DataOutputStream and DataInputStream instances is not good for performance.\n" +
                 "\n" +
                 "However, I suspect that a more important performance issue is that you are reading and writing without any Java-side buffering. This means that each read / write call is making one (and possibly many) syscalls to read data. System calls are a couple of orders of magnitude slower than ordinary Java method calls.\n" +
@@ -25,13 +27,10 @@ public class Main {
                 "It is up to you to figure out where your protocol's message boundaries ought to be. It depends entirely on the details of the data you are sending / receiving, and the way it is processed.";
 
         for(int i=0; i<100000; i++) {
-           db.put(i + "", str) ;
+             rocksDB.put((i + "").getBytes(), str.getBytes()) ;
         }
-
-        System.out.println(db.getString("22444" + (100000 - 1) ));
-
-
-        db.close();
+        rocksDB.get("10000".getBytes());
+        rocksDB.close();
 
         System.out.println("used " + (System.currentTimeMillis() - start));
     }

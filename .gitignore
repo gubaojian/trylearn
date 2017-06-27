@@ -4,7 +4,7 @@
 .mtj.tmp/
 
 # Package Files #
-*.jar
+#*.jar
 *.war
 *.ear
 
@@ -26,3 +26,5 @@ im/node_modules/
 *.node
 *.store
 *.meta
+*.sst
+RocksDB/store/*

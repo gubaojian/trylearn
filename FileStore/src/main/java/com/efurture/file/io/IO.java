@@ -22,4 +22,7 @@ public  class IO {
      * 文件元数据缓存区大小
      * */
     public static final int META_BUFFER_SIZE = BLOCK_BUFFER_SIZE/4;
+
+
+    public  static final  int PACK_NODE_FACTOR = 8;
 }
