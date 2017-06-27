@@ -1,4 +1,4 @@
-package com.efurture.file.meta;
+package com.efurture.file.io;
 
 /**
  * 可变int类型存储

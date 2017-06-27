@@ -34,7 +34,25 @@ public class FileStore {
     /**
      * 单个Store的大小,默认1024MB
      * */
-    public static final long STORE_FILE_SIZE = 1024*1024*1024l;
+    public static final long DEFAULT_STORE_FILE_SIZE = 1024*1024*1024l;
+
+    /**
+     * 默认文件的大小
+     * */
+    private final long storeFileSize = DEFAULT_STORE_FILE_SIZE;
+
+
+    /**
+     * 默认压缩的文件后缀名字
+     * */
+    private final List<String> zipFileSuffix = new ArrayList<String>();
+    {
+        zipFileSuffix.add(".dat");
+        zipFileSuffix.add(".txt");
+        zipFileSuffix.add(".json");
+        zipFileSuffix.add(".html");
+        zipFileSuffix.add(".htm");
+    }
 
 
     /**
@@ -115,12 +133,11 @@ public class FileStore {
      * */
     public void put(String fileName, byte[] bts) throws IOException {
         boolean zip = false;
-        if(fileName.endsWith(".dat")
-                || fileName.endsWith(".txt")
-                || fileName.endsWith(".json")
-                || fileName.endsWith(".html")
-                || fileName.endsWith(".htm")){
-            zip = true;
+        for(String suffix : zipFileSuffix){
+            if(fileName.endsWith(suffix)){
+                zip = true;
+                break;
+            }
         }
         put(fileName, bts, zip);
     }

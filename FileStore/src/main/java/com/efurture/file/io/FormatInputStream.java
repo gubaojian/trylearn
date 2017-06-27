@@ -1,7 +1,5 @@
 package com.efurture.file.io;
 
-import com.efurture.file.meta.Bits;
-
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
