@@ -92,7 +92,7 @@ public class FileStoreTest extends TestCase {
                 @Override
                 public void run() {
                     try {
-                        for(int i=0; i<10000; i++) {
+                        for(int i=0; i<100000; i++) {
                             db.put(i + "", str + i, false);
                         }
                     } catch (IOException e) {
@@ -117,15 +117,20 @@ public class FileStoreTest extends TestCase {
                 @Override
                 public void run() {
                     try {
-                        for(int i=0; i<10000; i++) {
+                        for(int i=0; i<100000; i++) {
                             String value = str + i;
-                            Assert.assertEquals(value, readDb.getString(i + ""));
+                            String key = i + "";
+                            String expect = readDb.getString(key);
+                            if(!value.equals(expect)){
+                                throw new RuntimeException(value  + " | " + expect  + " | "  + key);
+                            }
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
+                    }finally {
+                        readLatch.countDown();
                     }
                     System.out.println("read end");
-                    readLatch.countDown();
                 }
             }).start();
         }

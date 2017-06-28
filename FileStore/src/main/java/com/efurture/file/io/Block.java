@@ -27,8 +27,22 @@ public class Block{
         return len;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
+        Block block = (Block) o;
+        if (off != block.off) return false;
+        return len == block.len;
+    }
 
+    @Override
+    public int hashCode() {
+        int result = (int) (off ^ (off >>> 32));
+        result = 31 * result + len;
+        return result;
+    }
 
     public void write(FormatOutputStream out) throws IOException {
         out.writeZLong(off);

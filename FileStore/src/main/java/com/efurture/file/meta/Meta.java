@@ -71,19 +71,28 @@ public class Meta {
     }
 
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-    /**
-     * 是否是同一个meta
-     * */
-    public boolean isSameMeta(Meta meta){
-        if(meta == this){
-            return  true;
-        }
+        Meta meta = (Meta) o;
+
         if (header != meta.header) return false;
         if (node != meta.node) return false;
         if (flag != meta.flag) return false;
-        if (fileName != null ? !fileName.equals(meta.fileName) : meta.fileName != null) return false;
-        return blocks != null ? blocks.equals(meta.blocks) : meta.blocks == null;
+        return blocks.equals(meta.blocks);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) header;
+        result = 31 * result + fileName.hashCode();
+        result = 31 * result + node;
+        result = 31 * result + (int) flag;
+        result = 31 * result + blocks.hashCode();
+        return result;
     }
 
     /**

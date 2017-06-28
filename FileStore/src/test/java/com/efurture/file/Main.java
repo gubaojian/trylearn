@@ -45,8 +45,6 @@ public class Main {
         }
 
         latch.await();
-        System.out.println(db.getString("22444" + (100000 - 1)));
-
 
         db.close();
 

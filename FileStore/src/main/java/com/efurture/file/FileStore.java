@@ -327,7 +327,7 @@ public class FileStore {
                     if (newMeta == null) {
                         continue;
                     }
-                    if (!meta.isSameMeta(newMeta)) {
+                    if (!meta.equals(newMeta)) {
                         continue;
                     }
                     byte[] bts = getBlocks(entry.getKey(), entry.getValue());
