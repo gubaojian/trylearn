@@ -2,6 +2,7 @@ package com.efurture.file;
 
 import com.efurture.file.compress.GZip;
 import com.efurture.file.io.*;
+import com.efurture.file.log.Log;
 import com.efurture.file.meta.Meta;
 import com.efurture.file.meta.MetaOutputStream;
 import com.efurture.file.meta.MetaUtils;
@@ -117,10 +118,12 @@ public class FileStore {
                     return num1 - num2;
                 }
             });
+            long start = System.currentTimeMillis();
             for(String meta : metas){
-                long start = System.currentTimeMillis();
                 fileMeta.putAll(MetaUtils.readMeta(this.dir.getAbsolutePath() + File.separator + meta));
-                System.out.println(fileMeta.size() + " used " + (System.currentTimeMillis() - start));
+            }
+            if(Log.LOG_ENABLE){
+                Log.log(fileMeta.size() + " total records used " + (System.currentTimeMillis() - start));
             }
             if(metas.size() > 0) {
                 String meta = metas.get(metas.size() - 1);
@@ -241,8 +244,13 @@ public class FileStore {
         }
         if(!writeSyn){
             if(meta.node == node){
-                if(outputStream != null){
-                    outputStream.flush();
+                Block last = meta.blocks.get(meta.blocks.size() - 1);
+                long filePosition = last.getLen() + last.getOff();
+                //文件未写入磁盘,刷新写入磁盘
+                if(filePosition > outputStream.getSize() - IO.BLOCK_BUFFER_SIZE){
+                    if(outputStream != null){
+                        outputStream.flush();
+                    }
                 }
             }
         }

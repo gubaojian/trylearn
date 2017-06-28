@@ -2,6 +2,7 @@ package com.efurture.file.meta;
 
 import com.efurture.file.FileStore;
 import com.efurture.file.io.FormatInputStream;
+import com.efurture.file.log.Log;
 
 import java.io.*;
 import java.nio.channels.FileChannel;
@@ -37,20 +38,22 @@ public class MetaUtils {
             long fileLength = file.length();
             fileInputStream = new FileInputStream(metaFile);
             formatInputStream = new FormatInputStream(new GZIPInputStream(new BufferedInputStream(fileInputStream)));
-            int count = 0;
             Meta meta = readNextMeta(formatInputStream);
+            int count = 0;
             while (meta != null){
                 if(meta.flag == Meta.FLAG_NORMAL){
                     fileMeta.put(meta.fileName, meta);
                 }
                 meta = readNextMeta(formatInputStream);
-                count ++;
+                count++;
             }
             if(formatInputStream.getPosition() < fileLength){
                 throw  new RuntimeException(formatInputStream.getPosition() + " byte read  not expect file length " + fileLength + " file " + file.getAbsolutePath());
             }
             metaFileCache.put(metaFile, fileMeta);
-            System.out.println(count + " used " + (System.currentTimeMillis() - start));
+            if(Log.LOG_ENABLE) {
+                Log.log(metaFile  + "  " + fileMeta.size() + " meta count "+ count + " single used " + (System.currentTimeMillis() - start));
+            }
             return fileMeta;
         }catch (Exception e){
             e.printStackTrace();

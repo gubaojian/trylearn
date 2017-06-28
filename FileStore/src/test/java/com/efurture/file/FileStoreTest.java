@@ -72,6 +72,7 @@ public class FileStoreTest extends TestCase {
     public void  testMultiThread() throws IOException, InterruptedException {
         long start = System.currentTimeMillis();
         final FileStore db = new FileStore("store");
+        final String keySuffix = "multiThreadSynFalse";
         System.out.println("create store used " + (System.currentTimeMillis() - start));
         db.setWriteSyn(false);
         final String str = "Repeatedly creating DataOutputStream and DataInputStream instances is not good for performance.\n" +
@@ -94,27 +95,26 @@ public class FileStoreTest extends TestCase {
                 public void run() {
                     try {
                         for(int i=0; i<100000; i++) {
-                            db.put(i + "", str, false);
+                            String put = str + i;
+                            db.put(i + keySuffix, put, false);
                             String value = db.getString(i+ "");
-                            if(!str.equals(value)){
+                            if(!put.equals(value)){
                                 throw  new RuntimeException(str + " write | " + i +
                                         "  " + value);
                             }
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
+                    }finally {
+                        System.out.println("write end");
+                        latch.countDown();
                     }
-                    System.out.println("write end");
-                    latch.countDown();
                 }
             }).start();
         }
         latch.await();
         db.close();
         System.out.println("write used " + (System.currentTimeMillis() - start));
-
-        Thread.sleep(1000);
-
         final  FileStore readDb = new FileStore("store");
         System.out.println("create store used " + (System.currentTimeMillis() - start));
         final CountDownLatch readLatch = new CountDownLatch(threadNum);
@@ -124,8 +124,85 @@ public class FileStoreTest extends TestCase {
                 public void run() {
                     try {
                         for(int i=0; i<100000; i++) {
-                            String value = str;
-                            String key = i + "";
+                            String value = str + i;
+                            String key = i + keySuffix;
+                            String expect = readDb.getString(key);
+                            if (!value.equals(expect)) {
+                                throw new RuntimeException(value + " | " + expect + " | " + key);
+                            }
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }finally {
+                        readLatch.countDown();
+                    }
+                    System.out.println("read end");
+                }
+            }).start();
+        }
+        readLatch.await();
+        readDb.close();
+        System.out.println("read  used " + (System.currentTimeMillis() - start));
+
+    }
+
+    public void  testMultiThreadSync() throws IOException, InterruptedException {
+        long start = System.currentTimeMillis();
+        final FileStore db = new FileStore("store");
+        final String keySuffix = "multiThreadSynFalse";
+        System.out.println("create store used " + (System.currentTimeMillis() - start));
+        db.setWriteSyn(true);
+        final String str = "Repeatedly creating DataOutputStream and DataInputStream instances is not good for performance.\n" +
+                "\n" +
+                "However, I suspect that a more important performance issue is that you are reading and writing without any Java-side buffering. This means that each read / write call is making one (and possibly many) syscalls to read data. System calls are a couple of orders of magnitude slower than ordinary Java method calls.\n" +
+                "\n" +
+                "You need to wrap the Socket input stream in a BufferedInputStream and the output stream in a BufferedOutputStream, and then wrap these in the Data streams. (Note that when you do this, it becomes more important that you flush the DataOutputStream at the end of each message, or series of messages.\n" +
+                "\n" +
+                "Do I write a few info, and then flush after every each write?\n" +
+                "Like I said above, you flush at the end of each message, or each sequence of messages. Each flush on your buffered output stream will result in a syscall, assuming there is data in the buffer to be flushed. If you flush on every write you are (probably) doing unnecessary syscalls.\n" +
+                "\n" +
+                "It is up to you to figure out where your protocol's message boundaries ought to be. It depends entirely on the details of the data you are sending / receiving, and the way it is processed.";
+
+        int threadNum = 10;
+        final CountDownLatch latch = new CountDownLatch(threadNum);
+
+        for(int c=0; c<threadNum; c++){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        for(int i=0; i<100000; i++) {
+                            String put = str + i;
+                            db.put(i + keySuffix, put, false);
+                            String value = db.getString(i+ "");
+                            if(!put.equals(value)){
+                                throw  new RuntimeException(str + " write | " + i +
+                                        "  " + value);
+                            }
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }finally {
+                        System.out.println("write end");
+                        latch.countDown();
+                    }
+                }
+            }).start();
+        }
+        latch.await();
+        db.close();
+        System.out.println("write used " + (System.currentTimeMillis() - start));
+        final  FileStore readDb = new FileStore("store");
+        System.out.println("create store used " + (System.currentTimeMillis() - start));
+        final CountDownLatch readLatch = new CountDownLatch(threadNum);
+        for(int c=0; c<threadNum; c++){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        for(int i=0; i<100000; i++) {
+                            String value = str + i;
+                            String key = i + keySuffix;
                             String expect = readDb.getString(key);
                             if (!value.equals(expect)) {
                                 throw new RuntimeException(value + " | " + expect + " | " + key);
@@ -147,6 +224,14 @@ public class FileStoreTest extends TestCase {
 
     }
 
+
+    public void  testInit() throws IOException, InterruptedException {
+        long start = System.currentTimeMillis();
+        final FileStore db = new FileStore("store");
+        db.close();
+        System.out.println("init used " + (System.currentTimeMillis() - start));
+
+    }
 
     public void  testPack() throws IOException {
         FileStore db = new FileStore("store");
