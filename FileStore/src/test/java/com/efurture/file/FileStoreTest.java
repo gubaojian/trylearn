@@ -225,7 +225,7 @@ public class FileStoreTest extends TestCase {
     }
 
 
-    public void  testInit() throws IOException, InterruptedException {
+    public void  testInit() throws IOException{
         long start = System.currentTimeMillis();
         final FileStore db = new FileStore("store");
         db.close();

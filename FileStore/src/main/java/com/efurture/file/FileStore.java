@@ -11,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * 简单高效的小文件存储的数据库,可以存储海量小文件, 单个文件不超过1G。
@@ -92,7 +93,7 @@ public class FileStore {
     /**
      * 创建一个文件的存储
      * */
-    public FileStore(String dir) throws IOException{
+    public FileStore(String dir) throws IOException {
         this.dir = new File(dir);
         File file = this.dir;
         if(!file.exists()){
@@ -119,8 +120,25 @@ public class FileStore {
                 }
             });
             long start = System.currentTimeMillis();
-            for(String meta : metas){
-                fileMeta.putAll(MetaUtils.readMeta(this.dir.getAbsolutePath() + File.separator + meta));
+            ExecutorService executors = Executors.newFixedThreadPool(Math.min(metas.size(), Runtime.getRuntime().availableProcessors()));
+            List<Future<Map<String, Meta>>> futures = new ArrayList<Future<Map<String, Meta>>>();
+            for(final String meta : metas){
+                futures.add(executors.submit(new Callable<Map<String, Meta>>() {
+                    @Override
+                    public Map<String, Meta> call() throws Exception {
+                        return MetaUtils.readMeta(FileStore.this.dir.getAbsolutePath() + File.separator + meta);
+                    }
+                }));
+            }
+            executors.shutdown();
+            for(Future<Map<String, Meta>> future : futures){
+                try {
+                    fileMeta.putAll(future.get());
+                } catch (InterruptedException e) {
+                    throw new IOException(e);
+                } catch (ExecutionException e) {
+                    throw new IOException(e);
+                }
             }
             if(Log.LOG_ENABLE){
                 Log.log(fileMeta.size() + " total records used " + (System.currentTimeMillis() - start));
