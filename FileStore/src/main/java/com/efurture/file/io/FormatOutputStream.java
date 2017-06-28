@@ -51,8 +51,9 @@ public class FormatOutputStream {
      * 写入String, 采用平台独立的编码
      * */
     public void writeString(String str) throws IOException {
-        writeZInt(str.length());
-        out.write(str.getBytes(IO.STRING_CHARSET));
+        byte[] bts = str.getBytes(IO.STRING_CHARSET);
+        writeZInt(bts.length);
+        out.write(bts);
     }
 
 

@@ -49,11 +49,14 @@ public class Bits {
             return 3;
         }
 
-        buffer[3] = (byte) (val       );
-        buffer[2] = (byte) (val >>>  8);
-        buffer[1] = (byte) (val >>> 16);
-        buffer[0] = (byte) (val >>> 24 | 0xc0);   //11
-        return  4;
+        if (val >>> 30 == 0) {  //32,高2存储长度的差值, 最低支持
+            buffer[3] = (byte) (val       );
+            buffer[2] = (byte) (val >>>  8);
+            buffer[1] = (byte) (val >>> 16);
+            buffer[0] = (byte) (val >>> 24 | 0xc0);   //11
+            return  4;
+        }
+        throw new IllegalArgumentException(val + " is bigger than 30 bit, not supported");
     }
 
 
@@ -74,7 +77,7 @@ public class Bits {
         if(len == 3){
             return  ((buffer[off + 2] & 0xFFL)) +
                     ((buffer[off + 1] & 0xFFL) << 8) +
-                    (((long) (buffer[off] & 0x1F))      << 18);
+                    (((long) (buffer[off] & 0x1F))      << 16);
         }
 
 
@@ -188,15 +191,18 @@ public class Bits {
             return 7;
         }
 
-        buffer[7] = (byte) (val       );
-        buffer[6] = (byte) (val >>>  8);
-        buffer[5] = (byte) (val >>> 16);
-        buffer[4] = (byte) (val >>> 24);
-        buffer[3] = (byte) (val >>> 32);
-        buffer[2] = (byte) (val >>> 40);
-        buffer[1] = (byte) (val >>> 48);
-        buffer[0] = (byte) ((val >>> 56) | 0xe0);
-        return  8;
+        if (val >>> 61 == 0) {
+            buffer[7] = (byte) (val       );
+            buffer[6] = (byte) (val >>>  8);
+            buffer[5] = (byte) (val >>> 16);
+            buffer[4] = (byte) (val >>> 24);
+            buffer[3] = (byte) (val >>> 32);
+            buffer[2] = (byte) (val >>> 40);
+            buffer[1] = (byte) (val >>> 48);
+            buffer[0] = (byte) ((val >>> 56) | 0xe0);
+            return  8;
+        }
+        throw new IllegalArgumentException(val + " is bigger than 61 bit, not supported");
     }
 
 }

@@ -30,7 +30,9 @@ public class BlockOutputStream {
 
     public BlockOutputStream(String fileName) throws FileNotFoundException {
         this.fileName  = fileName;
-        this.offset = (int)new File(fileName).length();
+        if(new File(fileName).exists()) {
+            this.offset = (int) new File(fileName).length();
+        }
         this.buffer = new byte[BLOCK_BUFFER_SIZE];
     }
 
@@ -107,12 +109,13 @@ public class BlockOutputStream {
         if(bufferOffset > 0){
             if(buffer != null){
                 getOutputStream().write(buffer, 0, bufferOffset);
+                getOutputStream().close();
+                onFlushCallback(true);
             }
         }
         if(outputStream != null) {
             getOutputStream().close();
             onFlushCallback(true);
-            outputStream = null;
         }
         buffer = null;
     }

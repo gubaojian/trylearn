@@ -85,20 +85,26 @@ public class FileStoreTest extends TestCase {
                 "\n" +
                 "It is up to you to figure out where your protocol's message boundaries ought to be. It depends entirely on the details of the data you are sending / receiving, and the way it is processed.";
 
-        final CountDownLatch latch = new CountDownLatch(10);
+        int threadNum = 10;
+        final CountDownLatch latch = new CountDownLatch(threadNum);
 
-        for(int c=0; c<10; c++){
+        for(int c=0; c<threadNum; c++){
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
                         for(int i=0; i<100000; i++) {
-                            db.put(i + "", str + i, false);
+                            db.put(i + "", str, false);
+                            String value = db.getString(i+ "");
+                            if(!str.equals(value)){
+                                throw  new RuntimeException(str + " write | " + i +
+                                        "  " + value);
+                            }
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    System.out.println("react end");
+                    System.out.println("write end");
                     latch.countDown();
                 }
             }).start();
@@ -107,22 +113,22 @@ public class FileStoreTest extends TestCase {
         db.close();
         System.out.println("write used " + (System.currentTimeMillis() - start));
 
+        Thread.sleep(1000);
 
         final  FileStore readDb = new FileStore("store");
         System.out.println("create store used " + (System.currentTimeMillis() - start));
-        db.setWriteSyn(false);
-        final CountDownLatch readLatch = new CountDownLatch(10);
-        for(int c=0; c<10; c++){
+        final CountDownLatch readLatch = new CountDownLatch(threadNum);
+        for(int c=0; c<threadNum; c++){
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
                         for(int i=0; i<100000; i++) {
-                            String value = str + i;
+                            String value = str;
                             String key = i + "";
                             String expect = readDb.getString(key);
-                            if(!value.equals(expect)){
-                                throw new RuntimeException(value  + " | " + expect  + " | "  + key);
+                            if (!value.equals(expect)) {
+                                throw new RuntimeException(value + " | " + expect + " | " + key);
                             }
                         }
                     } catch (IOException e) {

@@ -167,9 +167,9 @@ public class FileStore {
      * */
     private void putData(String fileName, byte[] bts, byte header) throws IOException {
         synchronized (this) {
-            List<Block> blocks = outputStream.write(fileName, bts, 0, bts.length);
             nodeMemoryCache.remove(fileName);
             nodeMemoryCache.put(fileName, bts);
+            List<Block> blocks = outputStream.write(fileName, bts, 0, bts.length);
             Meta meta = Meta.createMeta(header, fileName, node,  blocks);
             fileMeta.put(fileName, meta);
             metaOutputStream.writeMeta(meta);
@@ -187,14 +187,14 @@ public class FileStore {
      * 存储字符串内容,默认压缩存储
      * */
     public void put(String fileName, String content) throws IOException {
-         put(fileName, content.getBytes(), true);
+         put(fileName, content.getBytes(IO.STRING_CHARSET), true);
     }
 
     /**
      * 存储字符串内容,是否压缩存储
      * */
     public void put(String fileName, String content, boolean zip) throws IOException {
-        put(fileName, content.getBytes(), zip);
+        put(fileName, content.getBytes(IO.STRING_CHARSET), zip);
     }
 
     /**
@@ -239,6 +239,13 @@ public class FileStore {
         if(bts != null){
             return  bts;
         }
+        if(!writeSyn){
+            if(meta.node == node){
+                if(outputStream != null){
+                    outputStream.flush();
+                }
+            }
+        }
         String nodeFile = dir.getAbsolutePath() + File.separator + meta.node + NODE_SUFFIX;
         BlockFileInputStream inputStream = new BlockFileInputStream(nodeFile , meta.blocks);
         ByteArrayOutputStream data = new ByteArrayOutputStream(1024*8);
@@ -259,7 +266,7 @@ public class FileStore {
         if(bts == null){
             return  null;
         }
-        return  new String(bts);
+        return  new String(bts, IO.STRING_CHARSET);
 
     }
 
