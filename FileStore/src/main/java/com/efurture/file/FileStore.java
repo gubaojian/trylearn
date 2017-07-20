@@ -334,7 +334,7 @@ public class FileStore {
      * */
     public void pack() throws IOException {
         if(dir.getFreeSpace() <= storeFileSize*IO.PACK_NODE_FACTOR){
-            System.err.println("none empty disk space for pack node");
+           Log.log("none empty disk space for pack node");
            return;
         }
 
@@ -347,7 +347,7 @@ public class FileStore {
         for(String metaFileName : sortMeta){
             File metaFile = new File(dir.getAbsolutePath() + File.separator + metaFileName);
             if(!metaFile.exists()){
-                System.err.println("warning metaFileName metaFile  lost " + metaFile.getAbsolutePath());
+                Log.log("warning metaFileName metaFile  lost " + metaFile.getAbsolutePath());
             }else {
                 Map<String, Meta> packNodeMetaMap = MetaUtils.readMeta(metaFile.getAbsolutePath());
                 Set<Map.Entry<String, Meta>> entrySet = packNodeMetaMap.entrySet();
@@ -365,7 +365,7 @@ public class FileStore {
                     }
                     byte[] bts = getBlocks(entry.getKey(), entry.getValue());
                     if (bts == null) {
-                        System.err.println("warning key data lost " + entry.getKey());
+                        Log.log("warning key data lost " + entry.getKey());
                         continue;
                     }
                     putData(entry.getKey(), bts, meta.header);
@@ -377,7 +377,7 @@ public class FileStore {
             if(nodeFile.exists()){
                 nodeFile.delete();
             }else{
-                System.err.println("warning nodeFileName data lost " + nodeFile.getAbsolutePath());
+                Log.log("warning nodeFileName data lost " + nodeFile.getAbsolutePath());
             }
         }
     }
