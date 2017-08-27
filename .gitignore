@@ -28,3 +28,4 @@ im/node_modules/
 *.meta
 *.sst
 RocksDB/store/*
+Tson/cmake-build-debug/
