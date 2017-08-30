@@ -95,7 +95,7 @@ void tson_push_type(tson_buffer *buffer, uint8_t bt){
 }
 
 
- void tson_push_type_boolean(tson_buffer *buffer, uint8_t value){
+void tson_push_type_boolean(tson_buffer *buffer, uint8_t value){
       TSON_BUFFER_ENSURE_SIZE(sizeof(uint8_t) + sizeof(uint8_t));
     uint8_t* data = (buffer->data + buffer->position);
     *data = TSON_BOOLEAN_TYPE;

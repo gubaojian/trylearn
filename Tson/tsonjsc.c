@@ -121,3 +121,67 @@ JSValueRef tson_to_js_value(JSContextRef ctx, tson_buffer* buffer){
     }
     return ref;
 }
+
+
+void tson_push_js_value_empty(JSContextRef ctx, JSValueRef value, tson_buffer *buffer){
+    JSType type = JSValueGetType(ctx, value);
+    switch (type) {
+        case kJSTypeString: {
+            JSStringRef string = JSValueToStringCopy(ctx, value, 0);
+            int length = JSStringGetMaximumUTF8CStringSize(string);
+            char* utf8 = malloc(sizeof(char)*length);
+            int size = JSStringGetUTF8CString(string, utf8, length);
+           // tson_push_type_string(buffer, utf8, size);
+            free(utf8);
+            JSStringRelease(string);
+        }
+            return;
+        case kJSTypeObject: {
+            JSObjectRef objectRef = JSValueToObject(ctx, value, 0);
+            if (JSValueIsArray(ctx, value)) {
+                JSStringRef lengthString = JSStringCreateWithUTF8CString("length");
+                unsigned int length = (unsigned int) JSValueToNumber(ctx,
+                                                                     JSObjectGetProperty(ctx, objectRef, lengthString,
+                                                                                         0), 0);
+                JSStringRelease(lengthString);
+                tson_push_type_array(buffer, length);
+                for (int i = 0; i < length; i++) {
+                    tson_push_js_value_empty(ctx, JSObjectGetPropertyAtIndex(ctx, objectRef, i, 0), buffer);
+                }
+            } else {
+                JSPropertyNameArrayRef propertyNameArray = JSObjectCopyPropertyNames(ctx, objectRef);
+                int length = JSPropertyNameArrayGetCount(propertyNameArray);
+                tson_push_type_map(buffer, length);
+                for (int i = 0; i < length; i++) {
+                    JSStringRef propertyName = JSPropertyNameArrayGetNameAtIndex(propertyNameArray, i);
+                    int propertyLength = JSStringGetMaximumUTF8CStringSize(propertyName);
+                    char* utf8 = malloc(propertyLength* sizeof(char));
+                    int size = JSStringGetUTF8CString(propertyName,  utf8, propertyLength);
+                    tson_push_uint(buffer, size);
+                    tson_push_bytes(buffer, utf8, size);
+                    free(utf8);
+                    tson_push_js_value_empty(ctx, JSObjectGetProperty(ctx, objectRef, propertyName, 0), buffer);
+                }
+                JSPropertyNameArrayRelease(propertyNameArray);
+            }
+        }
+            return;
+        case kJSTypeNumber: {
+            double num = JSValueToNumber(ctx, value, NULL);
+            //tson_push_type_double(buffer, num);
+        }
+            return;
+        case kJSTypeBoolean: {
+            bool isTrue = JSValueToBoolean(ctx, value);
+            tson_push_type_boolean(buffer, isTrue);
+        }
+            return;
+        case kJSTypeNull:
+        case kJSTypeUndefined: {
+            tson_push_type_null(buffer);
+        }
+            return;
+        default:
+            return;
+    }
+}

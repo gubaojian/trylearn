@@ -5,11 +5,14 @@ using  namespace std;
 
 #include "tsonjsc.h"
 #include "data.h"
+#include "tsonjs.h"
+#include <vector>
 
 static void  testTsonDouble();
 static void testTsonWriteFile();
 static void testTsonParse();
 static  void testTsonJsc();
+static void testVector();
 char* JSValueUtf8(JSContextRef ctx, JSValueRef value);
 char* JSStringUtf8(JSContextRef ctx, JSStringRef string);
 
@@ -25,7 +28,7 @@ int main() {
     //testTsonDouble();
     //testTsonWriteFile();
     //testTsonParse();
-
+    //testVector();
     testTsonJsc();
 
     return 0;
@@ -65,13 +68,18 @@ static void testTsonParse(){
 
     tson_buffer_free(buffer);
 }
-
+static void testVector(){
+    vector<int> vector;
+    vector.push_back(10);
+    vector.back()++;
+    printf("vector back %d", vector.back());
+}
 static void testTsonJsc(){
     tson_buffer* buffer = tson_buffer_new();
     JSGlobalContextRef globalContext = JSGlobalContextCreate(NULL);
     JSObjectRef  objectRef = JSContextGetGlobalObject(globalContext);
 
-    char const* fileName= "./../home.json";
+    char const* fileName= "./../data.json";
     char* json = readJSONFile(fileName);
 
 
@@ -84,7 +92,13 @@ static void testTsonJsc(){
     printf("parse used %f\n", (now_ms() - parse));
     double start = now_ms();
     tson_push_js_value(globalContext, valueRef, buffer);
-    printf("tson used %f\n", (now_ms() - start));
+    printf("tson used %f %d \n", (now_ms() - start), buffer->position);
+
+    start = now_ms();
+    //cpp_tson_push_js_value(globalContext, valueRef, buffer);
+    printf("cpp tson used %f  %d\n", (now_ms() - start), buffer->position);
+
+
 
     JSStringRef JSON = JSStringCreateWithUTF8CString("JSON");
     JSObjectRef JSONRef = JSValueToObject(globalContext,JSObjectGetProperty(globalContext, objectRef, JSON, 0), 0);

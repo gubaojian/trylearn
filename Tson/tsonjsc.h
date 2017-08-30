@@ -10,9 +10,11 @@
 //#endif
 #include "tson.h"
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 
 /**
  * performance is not good, two many copy
@@ -21,6 +23,8 @@ void tson_push_js_value(JSContextRef ctx, JSValueRef value, tson_buffer *buffer)
 
 JSValueRef tson_to_js_value(JSContextRef ctx, tson_buffer* buffer);
 
+
+void tson_push_js_value_empty(JSContextRef ctx, JSValueRef value, tson_buffer *buffer);
 
 #ifdef __cplusplus
 }

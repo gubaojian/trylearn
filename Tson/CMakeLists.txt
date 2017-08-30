@@ -11,6 +11,6 @@ if(APPLE)
 endif()
 
 set(CMAKE_CXX_STANDARD 11)
-set(SOURCE_FILES main.cpp tson.h tson.c Test.h tsonjsc.h tsonjsc.c data.h data.c)
+set(SOURCE_FILES main.cpp tson.h tson.c Test.h tsonjsc.h tsonjsc.c data.h data.c tsonjs.cpp tsonjs.h)
 add_executable(TsonProject ${SOURCE_FILES})
 target_link_libraries(TsonProject ${EXTRA_LIBS})
