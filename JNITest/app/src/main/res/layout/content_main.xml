@@ -22,7 +22,15 @@
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button"
+        android:text="JNITest"
+        tools:layout_editor_absoluteX="7dp"
+        tools:layout_editor_absoluteY="2dp" />
+
+    <Button
+        android:id="@+id/rotate_Test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Rotate Test"
         tools:layout_editor_absoluteX="7dp"
         tools:layout_editor_absoluteY="2dp" />
 

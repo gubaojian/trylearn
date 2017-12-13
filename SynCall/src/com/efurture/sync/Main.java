@@ -16,8 +16,8 @@ public class Main {
                 @Override
                 public void run() {
                     try {
-                        Thread.sleep(1);
-                    } catch (InterruptedException e) {
+                        //Thread.sleep(1);
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -36,9 +36,9 @@ public class Main {
                 @Override
                 public void run() {
                     try {
-                        Thread.sleep(1);
+                        //Thread.sleep(1);
                         latch.countDown();
-                    } catch (InterruptedException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
