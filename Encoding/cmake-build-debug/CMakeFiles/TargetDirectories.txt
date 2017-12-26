@@ -1,0 +1,3 @@
+/Users/furture/code/trylearn/Encoding/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/furture/code/trylearn/Encoding/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/furture/code/trylearn/Encoding/cmake-build-debug/CMakeFiles/Encoding.dir
