@@ -1,0 +1,4 @@
+/Users/furture/code/trylearn/CssParser/cmake-build-debug/CMakeFiles/CssParser.dir
+/Users/furture/code/trylearn/CssParser/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/furture/code/trylearn/CssParser/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/furture/code/trylearn/CssParser/cmake-build-debug/CMakeFiles/hubbub.dir

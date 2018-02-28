@@ -1,0 +1,38 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/furture/CLionProjects/Tson/data.c
+stdio.h
+-
+stdlib.h
+-
+
+/Users/furture/CLionProjects/Tson/tson.c
+tson.h
+/Users/furture/CLionProjects/Tson/tson.h
+stdio.h
+-
+
+/Users/furture/CLionProjects/Tson/tson.h
+inttypes.h
+-
+stdlib.h
+-
+string.h
+-
+
+/Users/furture/CLionProjects/Tson/tsonjsc.c
+tsonjsc.h
+/Users/furture/CLionProjects/Tson/tsonjsc.h
+
+/Users/furture/CLionProjects/Tson/tsonjsc.h
+JavaScriptCore/JavaScriptCore.h
+-
+tson.h
+/Users/furture/CLionProjects/Tson/tson.h
+

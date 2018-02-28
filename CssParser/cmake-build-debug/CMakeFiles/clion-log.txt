@@ -1,0 +1,6 @@
+/Applications/CLion.app/Contents/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /Users/furture/code/trylearn/CssParser
+-- Configuring done
+CMake Error: Cannot determine link language for target "hubbub".
+CMake Error: CMake can not determine linker language for target: hubbub
+-- Generating done
+-- Build files have been written to: /Users/furture/code/trylearn/CssParser/cmake-build-debug

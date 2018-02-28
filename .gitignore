@@ -28,4 +28,4 @@ im/node_modules/
 *.meta
 *.sst
 RocksDB/store/*
-Tson/cmake-build-debug/
+HelloOpenGLES20/app/build/
