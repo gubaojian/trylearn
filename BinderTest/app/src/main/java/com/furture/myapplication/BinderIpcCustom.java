@@ -112,7 +112,9 @@ public interface BinderIpcCustom extends android.os.IInterface
                 try {
                     _data.writeInterfaceToken(DESCRIPTOR);
                     _data.writeString(string);
-                    mRemote.transact(Stub.TRANSACTION_ipcString, _data, _reply, 0);
+                    //for(int i=0; i<1000; i++) {
+                        mRemote.transact(Stub.TRANSACTION_ipcString, _data, _reply, 0);
+                    //}
                     _reply.readException();
                 }
                 finally {

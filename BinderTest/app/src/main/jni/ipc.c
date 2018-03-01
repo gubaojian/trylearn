@@ -12,9 +12,9 @@
 #include <pthread.h>
 
 
-#define LOGE(TAG,...) __android_log_print(ANDROID_LOG_ERROR, TAG,__VA_ARGS__)
+//#define LOGE(TAG,...) __android_log_print(ANDROID_LOG_ERROR, TAG,__VA_ARGS__)
 #define LOGW(TAG,...) __android_log_print(ANDROID_LOG_ERROR, TAG,__VA_ARGS__)
-//#define LOGE(TAG,...) {}
+#define LOGE(TAG,...) {}
 
 
 #define SHARE_MMAP_SIZE   (4*1024*1024)
@@ -197,13 +197,14 @@ static void ipcServerLoop(int fd){
     for(int i=1; i<IPC_PAGE_SIZE; i+=2){
         serverMap[i*IPC_PAGE_OFFSET + 1]  |= IPC_FINISHED;
     }
+
     while (true){
         LOGE("ipc","ipc server loop page %d", readPage);
         volatile _Atomic uint32_t* readPagePtr = (volatile _Atomic uint32_t*)(serverMap + readPage*IPC_PAGE_OFFSET);
         LOGE("ipc","ipc server loop read try lock");
         lockPage(readPagePtr, tid);
         uint32_t* data = (uint32_t*)readPagePtr + 2;
-        data[0] = 0;
+        memcpy(data, "4444", 3);
         unlockPage(readPagePtr, tid, "ServerReadUnlock");
         LOGE("ipc","ipc server read data from client process success");
         //call ipc handler

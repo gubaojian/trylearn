@@ -72,13 +72,13 @@ public class MainActivity extends AppCompatActivity {
                         //for (int i = 0; i < 1000; i++) {
                             binderIpc.ipcBytes(bts);
                        // }
-                        Log.e("weex", "ipc used " + (System.currentTimeMillis() - start) + "ms");
+                        Log.e("weex", "ipc bytes used " + (System.currentTimeMillis() - start) + "ms");
 
                         start = System.currentTimeMillis();
                         for (int i = 0; i < 1000; i++) {
                         binderIpc.ipcString(str);
                          }
-                        Log.e("weex", "ipc used " + (System.currentTimeMillis() - start) + "ms");
+                        Log.e("weex", "ipc  string used " + (System.currentTimeMillis() - start) + "ms");
 
                     }
                 }catch (Exception e){
