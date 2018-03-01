@@ -8,7 +8,7 @@ interface BinderIpc {
      * Demonstrates some basic types that you can use as parameters
      * and return values in AIDL.
      */
-    void ipcBytes(in byte[] bts);
+    oneway void ipcBytes(in byte[] bts);
 
     void ipcString(String string);
 }

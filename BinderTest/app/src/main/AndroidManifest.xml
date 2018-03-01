@@ -20,6 +20,8 @@
 
         <service android:name=".BinderService"
             android:process=":binder"></service>
+
+        <service android:name=".ClientService" android:process=""></service>
     </application>
 
 </manifest>

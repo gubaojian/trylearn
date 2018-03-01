@@ -51,18 +51,18 @@ public interface BinderIpcCustom extends android.os.IInterface
                 case TRANSACTION_ipcBytes:
                 {
                     data.enforceInterface(DESCRIPTOR);
-                    //byte[] _arg0;
-                    //_arg0 = data.createByteArray();
-                    //this.ipcBytes(_arg0);
+                    byte[] _arg0;
+                    _arg0 = data.createByteArray();
+                    this.ipcBytes(_arg0);
                     reply.writeNoException();
                     return true;
                 }
                 case TRANSACTION_ipcString:
                 {
                     data.enforceInterface(DESCRIPTOR);
-                    //java.lang.String _arg0;
-                    //_arg0 = data.readString();
-                    //this.ipcString(_arg0);
+                    java.lang.String _arg0;
+                    _arg0 = data.readString();
+                    this.ipcString(_arg0);
                     reply.writeNoException();
                     return true;
                 }
@@ -90,6 +90,7 @@ public interface BinderIpcCustom extends android.os.IInterface
              */
             @Override public void ipcBytes(byte[] bts) throws android.os.RemoteException
             {
+                /**
                 android.os.Parcel _data = android.os.Parcel.obtain();
                 android.os.Parcel _reply = android.os.Parcel.obtain();
                 try {
@@ -102,6 +103,18 @@ public interface BinderIpcCustom extends android.os.IInterface
                 }
                 finally {
                     _reply.recycle();
+                    _data.recycle();
+                }*/
+
+                android.os.Parcel _data = android.os.Parcel.obtain();
+                try {
+                    _data.writeInterfaceToken(DESCRIPTOR);
+                    _data.writeByteArray(bts);
+                    for(int i=0; i<1000; i++) {
+                       mRemote.transact(Stub.TRANSACTION_ipcBytes, _data, null, android.os.IBinder.FLAG_ONEWAY);
+                    }
+                }
+                finally {
                     _data.recycle();
                 }
             }

@@ -18,4 +18,11 @@
         android:text="NativeIPC"
         android:id="@+id/binder_ipc_native"/>
 
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ThreadIPC"
+        android:id="@+id/thread_ipc_native"/>
+
 </LinearLayout>

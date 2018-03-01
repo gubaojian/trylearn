@@ -31,12 +31,18 @@ public class MainActivity extends AppCompatActivity {
 
     BinderIpcCustom binderIpc;
 
+    ThreadIpc threadIpc;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        try {
+            threadIpc = new ThreadIpc();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         Intent intent = new Intent(this, BinderService.class);
         startService(intent);
         bindService(intent, new ServiceConnection() {
@@ -55,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         }, BIND_AUTO_CREATE);
-        final byte[] bts = new byte[32];
+        final byte[] bts = new byte[4];
         final String str = new String(bts);
         findViewById(R.id.binder_ipc_one).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                         //for (int i = 0; i < 1000; i++) {
                             binderIpc.ipcBytes(bts);
                        // }
-                        Log.e("weex", "ipc bytes used " + (System.currentTimeMillis() - start) + "ms");
+                        Log.e("weex", "ipc bytes used " + (System.currentTimeMillis() - start) + "ms"  + android.os.Process.myPid());
 
                         start = System.currentTimeMillis();
                         for (int i = 0; i < 1000; i++) {
@@ -93,6 +99,21 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("weex", "NativeIpc Start");
                 NativeIpc.ipc(bts);
                 Log.e("weex", "NativeIpc End");
+            }
+        });
+
+        findViewById(R.id.thread_ipc_native).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                long start = System.currentTimeMillis();
+                    threadIpc.loop(1000);
+                Log.e("weex", "ipc  string used " + (System.currentTimeMillis() - start) + "ms");
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
             }
         });
     }
