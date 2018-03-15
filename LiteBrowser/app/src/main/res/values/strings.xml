@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">LiteBrowser</string>
+    <string name="please_input">please input url</string>
+</resources>

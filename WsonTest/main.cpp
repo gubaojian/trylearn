@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <JavaScriptCore/JavaScriptCore.h>
-#include "wson/wson.h"
+#include "wson.h"
 
 static void  testWson();
 static void  testWsonWithJava();

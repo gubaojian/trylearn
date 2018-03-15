@@ -15,14 +15,6 @@ fstream
 -
 JavaScriptCore/JavaScriptCore.h
 -
-wson/wson.h
-/Users/furture/code/trylearn/WsonTest/wson/wson.h
-
-/Users/furture/code/trylearn/WsonTest/wson/wson.h
-inttypes.h
--
-stdlib.h
--
-string.h
--
+wson.h
+/Users/furture/code/trylearn/WsonTest/wson.h
 

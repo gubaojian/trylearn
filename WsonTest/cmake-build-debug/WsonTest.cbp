@@ -82,21 +82,6 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/Users/furture/code/trylearn/WsonTest/WsonTest.cpp">
-			<Option target="WsonTest"/>
-		</Unit>
-		<Unit filename="/Users/furture/code/trylearn/WsonTest/WsonTest.h">
-			<Option target="WsonTest"/>
-		</Unit>
-		<Unit filename="/Users/furture/code/trylearn/WsonTest/main.cpp">
-			<Option target="WsonTest"/>
-		</Unit>
-		<Unit filename="/Users/furture/code/trylearn/WsonTest/wson/wson.c">
-			<Option target="WsonTest"/>
-		</Unit>
-		<Unit filename="/Users/furture/code/trylearn/WsonTest/wson/wson.h">
-			<Option target="WsonTest"/>
-		</Unit>
 		<Unit filename="/Users/furture/code/trylearn/WsonTest/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>

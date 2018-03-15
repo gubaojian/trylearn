@@ -123,87 +123,6 @@ WsonTest/fast:
 	$(MAKE) -f CMakeFiles/WsonTest.dir/build.make CMakeFiles/WsonTest.dir/build
 .PHONY : WsonTest/fast
 
-WsonTest.o: WsonTest.cpp.o
-
-.PHONY : WsonTest.o
-
-# target to build an object file
-WsonTest.cpp.o:
-	$(MAKE) -f CMakeFiles/WsonTest.dir/build.make CMakeFiles/WsonTest.dir/WsonTest.cpp.o
-.PHONY : WsonTest.cpp.o
-
-WsonTest.i: WsonTest.cpp.i
-
-.PHONY : WsonTest.i
-
-# target to preprocess a source file
-WsonTest.cpp.i:
-	$(MAKE) -f CMakeFiles/WsonTest.dir/build.make CMakeFiles/WsonTest.dir/WsonTest.cpp.i
-.PHONY : WsonTest.cpp.i
-
-WsonTest.s: WsonTest.cpp.s
-
-.PHONY : WsonTest.s
-
-# target to generate assembly for a file
-WsonTest.cpp.s:
-	$(MAKE) -f CMakeFiles/WsonTest.dir/build.make CMakeFiles/WsonTest.dir/WsonTest.cpp.s
-.PHONY : WsonTest.cpp.s
-
-main.o: main.cpp.o
-
-.PHONY : main.o
-
-# target to build an object file
-main.cpp.o:
-	$(MAKE) -f CMakeFiles/WsonTest.dir/build.make CMakeFiles/WsonTest.dir/main.cpp.o
-.PHONY : main.cpp.o
-
-main.i: main.cpp.i
-
-.PHONY : main.i
-
-# target to preprocess a source file
-main.cpp.i:
-	$(MAKE) -f CMakeFiles/WsonTest.dir/build.make CMakeFiles/WsonTest.dir/main.cpp.i
-.PHONY : main.cpp.i
-
-main.s: main.cpp.s
-
-.PHONY : main.s
-
-# target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) -f CMakeFiles/WsonTest.dir/build.make CMakeFiles/WsonTest.dir/main.cpp.s
-.PHONY : main.cpp.s
-
-wson/wson.o: wson/wson.c.o
-
-.PHONY : wson/wson.o
-
-# target to build an object file
-wson/wson.c.o:
-	$(MAKE) -f CMakeFiles/WsonTest.dir/build.make CMakeFiles/WsonTest.dir/wson/wson.c.o
-.PHONY : wson/wson.c.o
-
-wson/wson.i: wson/wson.c.i
-
-.PHONY : wson/wson.i
-
-# target to preprocess a source file
-wson/wson.c.i:
-	$(MAKE) -f CMakeFiles/WsonTest.dir/build.make CMakeFiles/WsonTest.dir/wson/wson.c.i
-.PHONY : wson/wson.c.i
-
-wson/wson.s: wson/wson.c.s
-
-.PHONY : wson/wson.s
-
-# target to generate assembly for a file
-wson/wson.c.s:
-	$(MAKE) -f CMakeFiles/WsonTest.dir/build.make CMakeFiles/WsonTest.dir/wson/wson.c.s
-.PHONY : wson/wson.c.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -213,15 +132,6 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... WsonTest"
-	@echo "... WsonTest.o"
-	@echo "... WsonTest.i"
-	@echo "... WsonTest.s"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
-	@echo "... wson/wson.o"
-	@echo "... wson/wson.i"
-	@echo "... wson/wson.s"
 .PHONY : help
 
 
