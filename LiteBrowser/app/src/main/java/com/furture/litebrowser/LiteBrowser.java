@@ -26,6 +26,10 @@ import com.furture.litebrowser.common.Edge;
 import com.furture.litebrowser.common.LayoutRect;
 import com.furture.litebrowser.http.HttpClient;
 import com.furture.litebrowser.http.UrlUtils;
+import com.furture.litebrowser.img.ImageManager;
+import com.furture.litebrowser.img.ImageRender;
+import com.furture.litebrowser.jni.NativeUtils;
+import com.furture.litebrowser.jni.StringPool;
 import com.furture.litebrowser.thread.LiteThread;
 import com.squareup.picasso.Picasso;
 
@@ -67,8 +71,10 @@ public class LiteBrowser extends View implements Handler.Callback {
     private int state;
     private LayoutRect layoutRect;
     private LayoutRect preLayoutRect;
-
+    private ImageManager imageManager;
     private String url;
+    private Paint mBitmapPaint;
+    private StringPool stringPool;
 
     public LiteBrowser(Context context) {
         super(context);
@@ -92,6 +98,7 @@ public class LiteBrowser extends View implements Handler.Callback {
                 metrics.density, metrics.densityDpi, (int)(metrics.density*16));
         mBackgroundPaint = createNormalPaint();
         mBordersPaint = createNormalPaint();
+        mBitmapPaint = createNormalPaint();
         mBordersPaint.setStyle(Paint.Style.STROKE);
         if(false){
             liteThread = Looper.getMainLooper().getThread();
@@ -106,6 +113,8 @@ public class LiteBrowser extends View implements Handler.Callback {
         }
         layoutRect = new LayoutRect();
         preLayoutRect = new LayoutRect();
+        stringPool = new StringPool();
+        imageManager = new ImageManager(this);
         state = STATE_INIT;
     }
 
@@ -147,23 +156,28 @@ public class LiteBrowser extends View implements Handler.Callback {
         if(left > 0 || top > 0){
             Log.e(TAG, "browser onLayout padding not supported");
         }
-        layoutRect.left = left;
-        layoutRect.top = top;
-        layoutRect.right = right;
-        layoutRect.bottom = bottom;
-        Message msg = Message.obtain(liteHandler, MSG_LAYOUT, layoutRect);
-        msg.sendToTarget();
+        //if(layoutRect.rectEquals(left, top, right, bottom)) {
+            layoutRect.left = left;
+            layoutRect.top = top;
+            layoutRect.right = right;
+            layoutRect.bottom = bottom;
+            Message msg = Message.obtain(liteHandler, MSG_LAYOUT, layoutRect);
+            msg.sendToTarget();
+        //}
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         if(ptr != 0  && state >= STATE_LAYOUT_PASS){
+            long start = System.currentTimeMillis();
             draw(ptr, canvas, 0, 0, getMeasuredWidth(), getMeasuredHeight());
+            Log.e(TAG, "LiteView onDraw used " + (System.currentTimeMillis() - start));
         }
     }
     public void loadHtml(String html){
         this.url = null;
+        stringPool.reset();
         if(Thread.currentThread() != liteThread){
             Message message = Message.obtain(liteHandler, MSG_LOAD_HTML, html);
             liteHandler.sendMessage(message);
@@ -173,6 +187,7 @@ public class LiteBrowser extends View implements Handler.Callback {
     }
     public void loadUrl(String url){
         this.url = url;
+        stringPool.reset();
         Message message = Message.obtain(liteHandler, MSG_LOAD_URL, url);
         liteHandler.sendMessage(message);
 
@@ -198,21 +213,24 @@ public class LiteBrowser extends View implements Handler.Callback {
             break;
             case MSG_LAYOUT:{
                 if(ptr != 0  && state >= STATE_HTML_PASS){
-                    if(!preLayoutRect.rectEquals(layoutRect)){
-                        preLayoutRect.rectCopy(layoutRect);
-                        int height = layout(ptr, preLayoutRect.right - preLayoutRect.left, preLayoutRect.bottom - preLayoutRect.top);
-                        if(height == preLayoutRect.bottom - preLayoutRect.top && state != STATE_RESIZE_LAYOUT){
-                            state = STATE_RESIZE_LAYOUT;
-                            preLayoutRect.bottom  = preLayoutRect.top + height;
-                            postRequestLayout(height);
+                    if(state < STATE_LAYOUT_PASS){
+                        if(!preLayoutRect.rectEquals(layoutRect)){
+                            preLayoutRect.rectCopy(layoutRect);
+                            //FIXME DOUBLE LAYOUT
+                            int height = layout(ptr, preLayoutRect.right - preLayoutRect.left, preLayoutRect.bottom - preLayoutRect.top);
+                            if(height > preLayoutRect.bottom - preLayoutRect.top && state != STATE_RESIZE_LAYOUT){
+                                state = STATE_RESIZE_LAYOUT;
+                                preLayoutRect.layoutHeight = height;
+                                postRequestLayout(height);
+                            }else{
+                                state = STATE_LAYOUT_PASS;
+                                postInvalidate();
+                            }
                         }else{
-                            state = STATE_LAYOUT_PASS;
-                            postInvalidate();
-                        }
-                    }else{
-                        if(state == STATE_RESIZE_LAYOUT){
-                            state = STATE_LAYOUT_PASS;
-                            postInvalidate();
+                            if(state == STATE_RESIZE_LAYOUT){
+                                state = STATE_LAYOUT_PASS;
+                                postInvalidate();
+                            }
                         }
                     }
                 }
@@ -257,7 +275,6 @@ public class LiteBrowser extends View implements Handler.Callback {
                 ViewGroup.LayoutParams params = getLayoutParams();
                 params.height = height;
                 setLayoutParams(params);
-                requestLayout();
             }
         });
     }
@@ -283,19 +300,19 @@ public class LiteBrowser extends View implements Handler.Callback {
         return tempRect.height();
     }
 
-    public int getTextWidth(Paint paint, byte[] bts){
+    public int getTextWidth(Paint paint, long ptr){
         try {
-            String string = new String(bts,"UTF-8");
+            String string = stringPool.getString(ptr);
             return (int) (paint.measureText(string,0, string.length()) + 0.49);
         } catch (UnsupportedEncodingException e) {
             return (int) (paint.measureText("X") + 0.49f);
         }
     }
 
-    public void drawText(Canvas canvas, Paint paint, byte[] bts, int x, int y, int width, int height){
+    public void drawText(Canvas canvas, Paint paint, long ptr, int x, int y, int width, int height){
         y = y + Math.abs(paint.getFontMetricsInt().ascent);
         try {
-            canvas.drawText(new String(bts,"UTF-8"), x, y, paint);
+            canvas.drawText(stringPool.getString(ptr), x, y, paint);
         } catch (UnsupportedEncodingException e) {
             Log.e(TAG, "drawText ", e);
         }
@@ -303,7 +320,10 @@ public class LiteBrowser extends View implements Handler.Callback {
 
     public void drawBackground(Canvas canvas, int color, String[] imgs, int x, int y, int width, int height,
                                int bottomLeftRadiusX, int bottomLeftRadiusY, int bottomRightRadiusX,int bottomRightRadiusY,
-                               int topLeftRadiusX, int topLeftRadiusY, int topRightRadiusX,int topRightRadiusY){
+                               int topLeftRadiusX, int topLeftRadiusY, int topRightRadiusX,int topRightRadiusY,
+                               String url, String baseUrl, int attachment, int repeat){
+
+        //draw border
         if((color&0XFF000000) != 0){
             int oldColor = mBackgroundPaint.getColor();
             mBackgroundPaint.setColor(color);
@@ -347,6 +367,20 @@ public class LiteBrowser extends View implements Handler.Callback {
             }
             mBackgroundPaint.setColor(oldColor);
         }
+        if(url == null){
+            return;
+        }
+        //drawbackground
+        ImageRender imageRender = imageManager.getBitmap(url, baseUrl);
+        if(imageRender == null || imageRender.getBitmap() == null){
+            return;
+        }
+        Rect src = new Rect();
+        src.set(0, 0, imageRender.getBitmap().getWidth(), imageRender.getBitmap().getHeight());
+        Rect dest = new Rect();
+        dest.set(x, y, x + width, y + height);
+        canvas.drawBitmap(imageRender.getBitmap(), src, dest, mBackgroundPaint);
+
         //fixme img supported
     }
 
@@ -628,9 +662,14 @@ public class LiteBrowser extends View implements Handler.Callback {
         }
     }
 
-    public void loadImg(String url, String baseUrl){
-        //Picasso.get().load(UrlUtils.toUrl(url, baseUrl))
+    public void loadImg(String url, String baseUrl,boolean redraw_on_ready){
+        imageManager.loadImg(url, baseUrl, redraw_on_ready);
     }
+
+    public void getImageSize(String url, String baseUrl, long ptr){
+       imageManager.getImageSize(url, baseUrl, ptr);
+    }
+
 
     private Rect tempRect = new Rect();
     private RectF tempRectF = new RectF();
@@ -642,4 +681,6 @@ public class LiteBrowser extends View implements Handler.Callback {
     private native void  draw(long ptr, Canvas canvas, int left, int right, int width, int height);
     private native void  destory(long ptr);
 
+
+    private static final Canvas DUMMY_CANVAS = new Canvas();
 }

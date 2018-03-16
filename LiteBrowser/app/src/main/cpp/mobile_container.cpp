@@ -89,19 +89,14 @@ int mobile_container::text_width(const litehtml::tchar_t *text, litehtml::uint_p
     JNIEnv* env = get_java_jni_env();
     static jmethodID  measureTextWidthMethodId;
     if(!measureTextWidthMethodId){
-        measureTextWidthMethodId = env->GetMethodID(_liteBrowserJava->browserClass, "getTextWidth", "(Landroid/graphics/Paint;[B)I");
+        measureTextWidthMethodId = env->GetMethodID(_liteBrowserJava->browserClass, "getTextWidth", "(Landroid/graphics/Paint;J)I");
     }
     jobject *font = nullptr;
     if(hFont){
         ScopedJObject* scopedJObject = (ScopedJObject *) hFont;
         font = (jobject *) scopedJObject->getObject();
     }
-    int size = strlen(text);
-    jbyteArray  array = env->NewByteArray(size);
-    env->SetByteArrayRegion(array, 0, size, (const jbyte *) text);
-    int width = env->CallIntMethod(_thisObject, measureTextWidthMethodId, font, array);
-    env->DeleteLocalRef(array);
-    //DEBUG_LOG("text_width %s %d", text, width);
+    int width = env->CallIntMethod(_thisObject, measureTextWidthMethodId, font, convert_to_ptr(text));
     return  width;
 }
 
@@ -113,16 +108,12 @@ void mobile_container::draw_text(litehtml::uint_ptr hdc, const litehtml::tchar_t
     JNIEnv* env = get_java_jni_env();
     static jmethodID drawTextMethodId;
     if(!drawTextMethodId){
-        drawTextMethodId = env->GetMethodID(_liteBrowserJava->browserClass, "drawText", "(Landroid/graphics/Canvas;Landroid/graphics/Paint;[BIIII)V");
+        drawTextMethodId = env->GetMethodID(_liteBrowserJava->browserClass, "drawText", "(Landroid/graphics/Canvas;Landroid/graphics/Paint;JIIII)V");
     }
     jobject  canvas = (jobject) hdc;
     jobject paint = ((ScopedJObject *) hFont)->getObject();
-    int size = strlen(text);
-    jbyteArray  array = env->NewByteArray(size);
-    env->SetByteArrayRegion(array, 0, size, (const jbyte *) text);
     env->CallVoidMethod(_thisObject, drawTextMethodId,
-                        canvas, paint, array, pos.x, pos.y, pos.width, pos.height);
-    env->DeleteLocalRef(array);
+                        canvas, paint, convert_to_ptr(text), pos.x, pos.y, pos.width, pos.height);
 
     //DEBUG_LOG("draw_text %s  %d %d %d %d\n", text, pos.x, pos.y, pos.height, pos.width);
 }
@@ -143,13 +134,56 @@ void mobile_container::draw_list_marker(litehtml::uint_ptr hdc, const litehtml::
 }
 
 void mobile_container::load_image(const litehtml::tchar_t *src, const litehtml::tchar_t *baseurl, bool redraw_on_ready) {
-    DEBUG_LOG("load_image  %s   %s  %d\n", src, baseurl, redraw_on_ready);
+    if(!src){
+        return;
+    }
+    JNIEnv* env = get_java_jni_env();
+    static jmethodID  loadImageMethodId;
+    if(!loadImageMethodId){
+        loadImageMethodId = env->GetMethodID(_liteBrowserJava->browserClass, "loadImg", "(Ljava/lang/String;Ljava/lang/String;Z)V");
+    }
+    DEBUG_LOG("load_image %s ",  src);
+    jstring  jUrl = env->NewStringUTF(src);
+    jstring  jBaseUrl = nullptr;
+    if(baseurl && strlen(baseurl) > 0){
+        jBaseUrl = env->NewStringUTF(baseurl);
+    }
+    env->CallVoidMethod(_thisObject, loadImageMethodId, jUrl, jBaseUrl, redraw_on_ready);
+    env->DeleteLocalRef(jUrl);
+    if(jBaseUrl){
+        env->DeleteLocalRef(jBaseUrl);
+    }
 }
 
+//FIXME USE JNI
 void mobile_container::get_image_size(const litehtml::tchar_t *src, const litehtml::tchar_t *baseurl, litehtml::size &sz) {
-    DEBUG_LOG("get_image_size  %s \n", src);
+    if(!src){
+        return;
+    }
     sz.width = 100;
     sz.height = 100;
+    JNIEnv* env = get_java_jni_env();
+    static jmethodID  getImageSizeMethodId;
+    if(!getImageSizeMethodId){
+        getImageSizeMethodId = env->GetMethodID(_liteBrowserJava->browserClass, "getImageSize", "(Ljava/lang/String;Ljava/lang/String;J)V");
+    }
+
+    litehtml::size* ptr = &sz;
+    convert_to_ptr(ptr);
+    jstring  jUrl = env->NewStringUTF(src);
+    jstring  jBaseUrl = nullptr;
+    if(baseurl && strlen(baseurl) > 0){
+        jBaseUrl = env->NewStringUTF(baseurl);
+    }
+    env->CallVoidMethod(_thisObject, getImageSizeMethodId, jUrl, jBaseUrl, convert_to_ptr(ptr));
+    env->DeleteLocalRef(jUrl);
+    if(jBaseUrl){
+        env->DeleteLocalRef(jBaseUrl);
+    }
+
+
+    DEBUG_LOG("get_image_size  %s  %d %d\n", src, sz.width, sz.height);
+
 }
 
 
@@ -186,34 +220,49 @@ void mobile_container::draw_borders(litehtml::uint_ptr hdc, const litehtml::bord
                         borders.radius.top_left_x, borders.radius.top_right_x, borders.radius.bottom_left_x, borders.radius.bottom_right_x);
 
 
-    DEBUG_LOG("draw_borders done\n");
+    //DEBUG_LOG("draw_borders done\n");
 }
 
 void mobile_container::draw_background(litehtml::uint_ptr hdc, const litehtml::background_paint &bg) {
      JNIEnv* env = get_java_jni_env();
      static jmethodID  drawBackgroundMethodId;
      if(!drawBackgroundMethodId){
-         drawBackgroundMethodId =  env->GetMethodID(_liteBrowserJava->browserClass, "drawBackground", "(Landroid/graphics/Canvas;I[Ljava/lang/String;IIIIIIIIIIII)V");
+         drawBackgroundMethodId =  env->GetMethodID(_liteBrowserJava->browserClass, "drawBackground", "(Landroid/graphics/Canvas;I[Ljava/lang/String;IIIIIIIIIIIILjava/lang/String;Ljava/lang/String;II)V");
      }
 
     jobject  canvas = (jobject) hdc;
     jint  color = 0;
-    DEBUG_LOG("bg.color.alpha2 %d  %d %d  %d", bg.color.alpha, bg.color.red,
-              bg.color.green, bg.color.blue);
+   // DEBUG_LOG("bg.color.alpha2 %d  %d %d  %d", bg.color.alpha, bg.color.red,
+    //          bg.color.green, bg.color.blue);
     if(bg.color.alpha){
         int alpha = (((int)bg.color.alpha) << 24); //&0XFF000000;
         int red = (((int)bg.color.red) << 16); //&0X00FF0000;
         int green = (((int)bg.color.green) << 8); //&0X0000FF00;
         int blue = (((int)bg.color.blue)); //&0X000000FF;
         color =  alpha | red | green | blue;
-        DEBUG_LOG("bg.color.alpha value %d %d  %d %d %d", color, alpha, red, green, blue);
+    }
+    jstring  jUrl = nullptr;
+    jstring  jBaseUrl = nullptr;
+    if(bg.image.c_str() && strlen(bg.image.c_str()) > 0){
+        jUrl = env->NewStringUTF(bg.image.c_str());
+    }
+    if(bg.baseurl.c_str() && strlen(bg.baseurl.c_str()) > 0){
+        jBaseUrl = env->NewStringUTF(bg.baseurl.c_str());
     }
     env->CallVoidMethod(_thisObject, drawBackgroundMethodId, canvas, color, nullptr, bg.clip_box.x,
                         bg.clip_box.y, bg.clip_box.width, bg.clip_box.height,
                         bg.border_radius.bottom_left_x, bg.border_radius.bottom_left_y,
                         bg.border_radius.bottom_right_x, bg.border_radius.bottom_right_y,
-                        bg.border_radius.top_left_x, bg.border_radius.top_left_y, bg.border_radius.top_right_x, bg.border_radius.top_right_y);
-    DEBUG_LOG("draw_background \n");
+                        bg.border_radius.top_left_x, bg.border_radius.top_left_y, bg.border_radius.top_right_x, bg.border_radius.top_right_y,
+       jUrl, jBaseUrl, bg.attachment, bg.repeat);
+
+    if(jUrl){
+        env->DeleteLocalRef(jUrl);
+    }
+    if(jBaseUrl){
+        env->DeleteLocalRef(jBaseUrl);
+    }
+
 }
 
 void mobile_container::set_caption(const litehtml::tchar_t *caption) {

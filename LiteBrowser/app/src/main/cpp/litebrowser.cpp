@@ -73,7 +73,6 @@ Java_com_furture_litebrowser_LiteBrowser_draw(JNIEnv *env, jobject instance, jlo
 
     LiteBrowser* browser = convert_to_context(ptr);
     if(browser->document){
-        DEBUG_LOG("document draw");
         position drawPosition(0,0, width, height);
         browser->document->draw(canvas, 0, 0, &drawPosition);
     }
@@ -110,6 +109,15 @@ Java_com_furture_litebrowser_LiteBrowser_destory__J(JNIEnv *env, jobject instanc
     delete browser;
 }
 
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_furture_litebrowser_jni_NativeUtils_setSize(JNIEnv *env, jclass type, jlong ptr,
+                                                     jint width, jint height) {
+    litehtml::size* sz = (litehtml::size *)ptr;
+    sz->width = width;
+    sz->height = height;
+}
+
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved){
     LOGE("litebrowser", "litebrowser jni onload");
@@ -132,3 +140,12 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved){
     return JNI_VERSION_1_4;
 }
 
+extern "C"
+JNIEXPORT jbyteArray JNICALL
+Java_com_furture_litebrowser_jni_NativeUtils_getStringBytes(JNIEnv *env, jclass type, jlong ptr) {
+    const litehtml::tchar_t *text = (const litehtml::tchar_t *) ptr;
+    int size = strlen(text);
+    jbyteArray  array = env->NewByteArray(size);
+    env->SetByteArrayRegion(array, 0, size, (const jbyte *) text);
+    return  array;
+}

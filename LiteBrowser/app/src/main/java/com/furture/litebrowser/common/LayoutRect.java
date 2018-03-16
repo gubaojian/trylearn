@@ -10,6 +10,8 @@ public class LayoutRect {
     public int right;
     public int bottom;
 
+    public int layoutHeight;
+
     public boolean rectEquals(LayoutRect that) {
         if (left != that.left) return false;
         if (top != that.top) return false;
@@ -22,5 +24,12 @@ public class LayoutRect {
         this.top = that.top;
         this.right = that.right;
         this.bottom = that.bottom;
+    }
+
+    public boolean rectEquals(int left, int top, int right, int bottom) {
+        if (left != this.left) return false;
+        if (top != this.top) return false;
+        if (right != this.right) return false;
+        return bottom == this.bottom;
     }
 }

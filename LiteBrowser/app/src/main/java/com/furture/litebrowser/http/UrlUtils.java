@@ -12,7 +12,7 @@ import java.util.List;
 
 public class UrlUtils {
 
-    public static String toUrl(String url, String baseUrl) throws IOException {
+    public static String toUrl(String url, String baseUrl){
         String requestUrl = null;
         if(URLUtil.isFileUrl(url)
                 || URLUtil.isHttpsUrl(url)

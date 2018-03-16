@@ -1,9 +1,9 @@
 package com.furture.litebrowser;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.FrameLayout;
 
 /**
  * 1、图片加载支持
@@ -20,31 +20,49 @@ import android.widget.FrameLayout;
  * */
 public class MainActivity extends AppCompatActivity {
 
-
-    LiteBrowser browser;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
 
-        findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
+
+        findViewById(R.id.url_node_200).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                FrameLayout frameLayout = findViewById(R.id.browser_container);
-                frameLayout.removeAllViews();
-                if(browser != null){
-                    browser.destory();
-                }
-                browser = new LiteBrowser(getBaseContext());
-                browser.loadHtml(AssetUtils.read(getBaseContext(), "hello.html"));
-               // browser.loadUrl("https://en.m.wikipedia.org/wiki/Display_resolution");
-                frameLayout.addView(browser, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT));
+                goUrl("node200.htm");
             }
         });
 
+
+        findViewById(R.id.url_node_320).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goUrl("node320.htm");
+            }
+        });
+
+        findViewById(R.id.url_node_400).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goUrl("node400.htm");
+            }
+        });
+
+
+
+        findViewById(R.id.url_node_838).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goUrl("node838.htm");
+            }
+        });
+
+    }
+
+    private void goUrl(String url){
+        Intent intent = new Intent(getBaseContext(), LiteBrowserActivity.class);
+        intent.putExtra("url", url);
+        startActivity(intent);
     }
 }

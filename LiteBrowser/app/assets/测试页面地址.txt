@@ -13,3 +13,9 @@
 
 1、media属性支持
 2、页面自动缩放
+3、图片单位处理
+4、局部刷新支持
+5、rgba颜色不支持
+6、flex-box
+
+ background-color: #3398FB98;
