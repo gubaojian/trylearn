@@ -714,7 +714,7 @@ FloatQuad RenderBox::absoluteContentQuad() const
     return localToAbsoluteQuad(FloatRect(rect));
 }
 
-LayoutRect RenderBox::outlineBoundsForRepaint(const RenderLayerModelObject* repaintContainer, const RenderGeometryMap* geometryMap) const
+LayoutRect RenderBox::outlineBoundsForRepaint(const RenderElement* repaintContainer, const RenderGeometryMap* geometryMap) const
 {
     /**
     LayoutRect box = borderBoundingBox();
@@ -739,7 +739,7 @@ LayoutRect RenderBox::outlineBoundsForRepaint(const RenderLayerModelObject* repa
     return  LayoutRect(0,0, 100, 200);
 }
 
-void RenderBox::addFocusRingRects(Vector<LayoutRect>& rects, const LayoutPoint& additionalOffset, const RenderLayerModelObject*)
+void RenderBox::addFocusRingRects(Vector<LayoutRect>& rects, const LayoutPoint& additionalOffset, const RenderElement*)
 {
     if (!size().isEmpty())
         rects.append(LayoutRect(additionalOffset, size()));
@@ -1966,7 +1966,7 @@ LayoutUnit RenderBox::perpendicularContainingBlockLogicalHeight() const
   return cb->adjustContentBoxLogicalHeightForBoxSizing(LayoutUnit(logicalHeightLength.value()));
 }
 
-void RenderBox::mapLocalToContainer(const RenderLayerModelObject* repaintContainer, TransformState& transformState, MapCoordinatesFlags mode, bool* wasFixed) const
+void RenderBox::mapLocalToContainer(const RenderElement* repaintContainer, TransformState& transformState, MapCoordinatesFlags mode, bool* wasFixed) const
 {
   if (repaintContainer == this)
       return;
@@ -2019,7 +2019,7 @@ void RenderBox::mapLocalToContainer(const RenderLayerModelObject* repaintContain
   container->mapLocalToContainer(repaintContainer, transformState, mode, wasFixed);
 }
 
-const RenderObject* RenderBox::pushMappingToContainer(const RenderLayerModelObject* ancestorToStopAt, RenderGeometryMap& geometryMap) const
+const RenderObject* RenderBox::pushMappingToContainer(const RenderElement* ancestorToStopAt, RenderGeometryMap& geometryMap) const
 {
   ASSERT(ancestorToStopAt != this);
 
@@ -2150,7 +2150,7 @@ void RenderBox::deleteLineBoxWrapper()
   m_inlineBoxWrapper = nullptr;
 }
 
-LayoutRect RenderBox::clippedOverflowRectForRepaint(const RenderLayerModelObject* repaintContainer) const
+LayoutRect RenderBox::clippedOverflowRectForRepaint(const RenderElement* repaintContainer) const
 {
   if (style().visibility() != VISIBLE && !enclosingLayer()->hasVisibleContent())
       return LayoutRect();
@@ -2161,7 +2161,7 @@ LayoutRect RenderBox::clippedOverflowRectForRepaint(const RenderLayerModelObject
   return computeRectForRepaint(r, repaintContainer);
 }
 
-bool RenderBox::shouldApplyClipAndScrollPositionForRepaint(const RenderLayerModelObject* repaintContainer) const
+bool RenderBox::shouldApplyClipAndScrollPositionForRepaint(const RenderElement* repaintContainer) const
 {
 #if PLATFORM(IOS)
   if (!repaintContainer || repaintContainer != this)
@@ -2174,7 +2174,7 @@ bool RenderBox::shouldApplyClipAndScrollPositionForRepaint(const RenderLayerMode
 #endif
 }
 
-LayoutRect RenderBox::computeRectForRepaint(const LayoutRect& rect, const RenderLayerModelObject* repaintContainer, RepaintContext context) const
+LayoutRect RenderBox::computeRectForRepaint(const LayoutRect& rect, const RenderElement* repaintContainer, RepaintContext context) const
 {
   // The rect we compute at each step is shifted by our x/y offset in the parent container's coordinate space.
   // Only when we cross a writing mode boundary will we have to possibly flipForWritingMode (to convert into a more appropriate

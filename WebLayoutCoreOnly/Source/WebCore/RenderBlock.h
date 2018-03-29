@@ -25,7 +25,6 @@
 #include "GapRects.h"
 #include "LineWidth.h"
 #include "RenderBox.h"
-#include "TextRun.h"
 #include <memory>
 #include <wtf/ListHashSet.h>
 
@@ -60,8 +59,7 @@ public:
     virtual ~RenderBlock();
 
 protected:
-    RenderBlock(Element&, RenderStyle&&, BaseTypeFlags);
-    RenderBlock(Document&, RenderStyle&&, BaseTypeFlags);
+    RenderBlock(RenderStyle&&, BaseTypeFlags);
 
 public:
     // These two functions are overridden for inline-block.
@@ -176,7 +174,7 @@ public:
 
     VisiblePosition positionForPoint(const LayoutPoint&, const RenderFragmentContainer*) override;
 
-    GapRects selectionGapRectsForRepaint(const RenderLayerModelObject* repaintContainer);
+    GapRects selectionGapRectsForRepaint(const RenderElement* repaintContainer);
     LayoutRect logicalLeftSelectionGap(RenderBlock& rootBlock, const LayoutPoint& rootBlockPhysicalPosition, const LayoutSize& offsetFromRootBlock,
         RenderBoxModelObject* selObj, LayoutUnit logicalLeft, LayoutUnit logicalTop, LayoutUnit logicalHeight, const LogicalSelectionOffsetCaches&, const PaintInfo*);
     LayoutRect logicalRightSelectionGap(RenderBlock& rootBlock, const LayoutPoint& rootBlockPhysicalPosition, const LayoutSize& offsetFromRootBlock,
@@ -200,20 +198,7 @@ public:
         return obj.isFloating() || (obj.isOutOfFlowPositioned() && !obj.style().isOriginalDisplayInlineType() && !obj.container()->isRenderInline());
     }
 
-    static TextRun constructTextRun(StringView, const RenderStyle&,
-        ExpansionBehavior = DefaultExpansion, TextRunFlags = DefaultTextRunFlags);
-    static TextRun constructTextRun(const String&, const RenderStyle&,
-        ExpansionBehavior = DefaultExpansion, TextRunFlags = DefaultTextRunFlags);
-    static TextRun constructTextRun(const AtomicString&, const RenderStyle&,
-        ExpansionBehavior = DefaultExpansion, TextRunFlags = DefaultTextRunFlags);
-    static TextRun constructTextRun(const RenderText&, const RenderStyle&,
-        ExpansionBehavior = DefaultExpansion);
-    static TextRun constructTextRun(const RenderText&, unsigned offset, unsigned length, const RenderStyle&,
-        ExpansionBehavior = DefaultExpansion);
-    static TextRun constructTextRun(const LChar* characters, unsigned length, const RenderStyle&,
-        ExpansionBehavior = DefaultExpansion);
-    static TextRun constructTextRun(const UChar* characters, unsigned length, const RenderStyle&,
-        ExpansionBehavior = DefaultExpansion);
+
     
     LayoutUnit paginationStrut() const;
     void setPaginationStrut(LayoutUnit);
@@ -404,8 +389,8 @@ protected:
     void addOverflowFromPositionedObjects();
     void addVisualOverflowFromTheme();
 
-    void addFocusRingRects(Vector<LayoutRect>&, const LayoutPoint& additionalOffset, const RenderLayerModelObject* paintContainer = 0) override;
-    virtual void addFocusRingRectsForInlineChildren(Vector<LayoutRect>&, const LayoutPoint& additionalOffset, const RenderLayerModelObject* paintContainer);
+    void addFocusRingRects(Vector<LayoutRect>&, const LayoutPoint& additionalOffset, const RenderElement* paintContainer = 0) override;
+    virtual void addFocusRingRectsForInlineChildren(Vector<LayoutRect>&, const LayoutPoint& additionalOffset, const RenderElement* paintContainer);
 
     void computeFragmentRangeForBoxChild(const RenderBox&) const;
 
@@ -421,7 +406,7 @@ protected:
     void blockWillBeDestroyed();
 
 private:
-    static RenderPtr<RenderBlock> createAnonymousBlockWithStyleAndDisplay(Document&, const RenderStyle&, EDisplay);
+    static RenderPtr<RenderBlock> createAnonymousBlockWithStyleAndDisplay(const RenderStyle&, EDisplay);
 
     // FIXME-BLOCKFLOW: Remove virtualizaion when all callers have moved to RenderBlockFlow
     virtual LayoutUnit logicalRightFloatOffsetForLine(LayoutUnit, LayoutUnit fixedOffset, LayoutUnit) const { return fixedOffset; };
@@ -465,14 +450,14 @@ private:
 
     void computeBlockPreferredLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const;
     
-    LayoutRect rectWithOutlineForRepaint(const RenderLayerModelObject* repaintContainer, LayoutUnit outlineWidth) const final;
+    LayoutRect rectWithOutlineForRepaint(const RenderElement* repaintContainer, LayoutUnit outlineWidth) const final;
     const RenderStyle& outlineStyleForRepaint() const final;
 
     RenderElement* hoverAncestor() const final;
     void updateDragState(bool dragOn) final;
     void childBecameNonInline(RenderElement&) final;
 
-    LayoutRect selectionRectForRepaint(const RenderLayerModelObject* repaintContainer, bool /*clipToVisibleContent*/) final
+    LayoutRect selectionRectForRepaint(const RenderElement* repaintContainer, bool /*clipToVisibleContent*/) final
     {
         return selectionGapRectsForRepaint(repaintContainer);
     }
@@ -542,17 +527,17 @@ VisiblePosition positionForPointRespectingEditingBoundaries(RenderBlock&, Render
 
 inline RenderPtr<RenderBlock> RenderBlock::createAnonymousWithParentRendererAndDisplay(const RenderBox& parent, EDisplay display)
 {
-    return createAnonymousBlockWithStyleAndDisplay(parent.document(), parent.style(), display);
+    return createAnonymousBlockWithStyleAndDisplay(parent.style(), display);
 }
 
 inline RenderPtr<RenderBox> RenderBlock::createAnonymousBoxWithSameTypeAs(const RenderBox& renderer) const
 {
-    return createAnonymousBlockWithStyleAndDisplay(document(), renderer.style(), style().display());
+    return createAnonymousBlockWithStyleAndDisplay(renderer.style(), style().display());
 }
 
 inline RenderPtr<RenderBlock> RenderBlock::createAnonymousBlock(EDisplay display) const
 {
-    return createAnonymousBlockWithStyleAndDisplay(document(), style(), display);
+    return createAnonymousBlockWithStyleAndDisplay(style(), display);
 }
 
 } // namespace WebCore

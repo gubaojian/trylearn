@@ -79,7 +79,7 @@ public:
     Color selectionEmphasisMarkColor() const;
 
     // FIXME: Make these standalone and move to relevant files.
-    bool isRenderLayerModelObject() const;
+    bool isRenderElement() const;
     bool isBoxModelObject() const;
     bool isRenderBlock() const;
     bool isRenderBlockFlow() const;
@@ -133,7 +133,7 @@ public:
     void setStyleInternal(RenderStyle&& style) { m_style = WTFMove(style); }
 
     // Repaint only if our old bounds and new bounds are different. The caller may pass in newBounds and newOutlineBox if they are known.
-    bool repaintAfterLayoutIfNeeded(const RenderLayerModelObject* repaintContainer, const LayoutRect& oldBounds, const LayoutRect& oldOutlineBox, const LayoutRect* newBoundsPtr = nullptr, const LayoutRect* newOutlineBoxPtr = nullptr);
+    bool repaintAfterLayoutIfNeeded(const RenderElement* repaintContainer, const LayoutRect& oldBounds, const LayoutRect& oldOutlineBox, const LayoutRect* newBoundsPtr = nullptr, const LayoutRect* newOutlineBoxPtr = nullptr);
 
     bool borderImageIsLoadedAndCanBeRendered() const;
     bool mayCauseRepaintInsideViewport(const IntRect* visibleRect = nullptr) const;
@@ -232,7 +232,7 @@ public:
 
 protected:
     enum BaseTypeFlag {
-        RenderLayerModelObjectFlag  = 1 << 0,
+        RenderElementFlag  = 1 << 0,
         RenderBoxModelObjectFlag    = 1 << 1,
         RenderInlineFlag            = 1 << 2,
         RenderReplacedFlag          = 1 << 3,
@@ -242,8 +242,7 @@ protected:
     
     typedef unsigned BaseTypeFlags;
 
-    RenderElement(Element&, RenderStyle&&, BaseTypeFlags);
-    RenderElement(Document&, RenderStyle&&, BaseTypeFlags);
+    RenderElement(RenderStyle&&, BaseTypeFlags);
 
     bool layerCreationAllowedForSubtree() const;
 
@@ -291,12 +290,11 @@ protected:
     bool isVisibleInViewport() const;
 
 private:
-    RenderElement(RenderStyle&&, BaseTypeFlags);
     void node() const = delete;
     void nonPseudoNode() const = delete;
     void generatingNode() const = delete;
     void isText() const = delete;
-    void isRenderElement() const = delete;
+    //void isRenderElement() const = delete;
 
     RenderObject* firstChildSlow() const final { return firstChild(); }
     RenderObject* lastChildSlow() const final { return lastChild(); }
@@ -386,9 +384,9 @@ inline LayoutUnit RenderElement::minimumValueForLength(const Length& length, Lay
     return WebCore::minimumValueForLength(length, maximumValue);
 }
 
-inline bool RenderElement::isRenderLayerModelObject() const
+inline bool RenderElement::isRenderElement() const
 {
-    return m_baseTypeFlags & RenderLayerModelObjectFlag;
+    return m_baseTypeFlags & RenderElementFlag;
 }
 
 inline bool RenderElement::isBoxModelObject() const
@@ -437,10 +435,6 @@ inline bool RenderElement::createsGroupForStyle(const RenderStyle& style)
     return style.opacity() < 1.0f  || style.hasBlendMode();
 }
 
-inline bool RenderObject::isRenderLayerModelObject() const
-{
-    return is<RenderElement>(*this) && downcast<RenderElement>(*this).isRenderLayerModelObject();
-}
 
 inline bool RenderObject::isBoxModelObject() const
 {

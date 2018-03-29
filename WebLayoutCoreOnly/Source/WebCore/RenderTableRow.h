@@ -34,8 +34,7 @@ static const unsigned maxRowIndex = 0x7FFFFFFE; // 2,147,483,646
 class RenderTableRow final : public RenderBox {
     WTF_MAKE_ISO_ALLOCATED(RenderTableRow);
 public:
-    RenderTableRow(Element&, RenderStyle&&);
-    RenderTableRow(Document&, RenderStyle&&);
+    RenderTableRow(RenderStyle&&);
 
     RenderTableRow* nextRow() const;
     RenderTableRow* previousRow() const;
@@ -66,7 +65,7 @@ public:
     void collapseAndDestroyAnonymousSiblingRows();
 
 private:
-    static RenderPtr<RenderTableRow> createTableRowWithStyle(Document&, const RenderStyle&);
+    static RenderPtr<RenderTableRow> createTableRowWithStyle(const RenderStyle&);
 
     const char* renderName() const override { return (isAnonymous() || isPseudoElement()) ? "RenderTableRow (anonymous)" : "RenderTableRow"; }
 
@@ -76,13 +75,13 @@ private:
     void willBeRemovedFromTree() override;
 
     void layout() override;
-    LayoutRect clippedOverflowRectForRepaint(const RenderLayerModelObject* repaintContainer) const override;
+    LayoutRect clippedOverflowRectForRepaint(const RenderElement* repaintContainer) const override;
 
-    bool requiresLayer() const override { return hasOverflowClip() || hasTransformRelatedProperty() || hasHiddenBackface() || hasClipPath() || createsGroup() || isStickilyPositioned(); }
+    bool requiresLayer() const override { return false; //hasOverflowClip() || hasTransformRelatedProperty() || hasHiddenBackface() || hasClipPath() || createsGroup() || isStickilyPositioned();
+         }
 
     void paint(PaintInfo&, const LayoutPoint&) override;
 
-    void imageChanged(WrappedImagePtr, const IntRect* = 0) override;
 
     void styleDidChange(StyleDifference, const RenderStyle* oldStyle) override;
 
@@ -153,7 +152,7 @@ inline RenderTableRow* RenderTableSection::lastRow() const
 
 inline RenderPtr<RenderBox> RenderTableRow::createAnonymousBoxWithSameTypeAs(const RenderBox& renderer) const
 {
-    return RenderTableRow::createTableRowWithStyle(renderer.document(), renderer.style());
+    return RenderTableRow::createTableRowWithStyle(renderer.style());
 }
 
 } // namespace WebCore

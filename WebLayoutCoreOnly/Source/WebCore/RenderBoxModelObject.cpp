@@ -147,9 +147,9 @@ void RenderBoxModelObject::setSelectionState(SelectionState state)
 
     if ((state == SelectionStart && selectionState() == SelectionEnd)
         || (state == SelectionEnd && selectionState() == SelectionStart))
-        RenderLayerModelObject::setSelectionState(SelectionBoth);
+        RenderElement::setSelectionState(SelectionBoth);
     else
-        RenderLayerModelObject::setSelectionState(state);
+        RenderElement::setSelectionState(state);
 
     // FIXME: We should consider whether it is OK propagating to ancestor RenderInlines.
     // This is a workaround for http://webkit.org/b/32123
@@ -232,12 +232,12 @@ void RenderBoxModelObject::suspendAnimations(double time)
 }
 
 RenderBoxModelObject::RenderBoxModelObject(Element& element, RenderStyle&& style, BaseTypeFlags baseTypeFlags)
-   : RenderLayerModelObject(element, WTFMove(style), baseTypeFlags | RenderBoxModelObjectFlag)
+   : RenderElement(element, WTFMove(style), baseTypeFlags | RenderBoxModelObjectFlag)
 {
 }
 
 RenderBoxModelObject::RenderBoxModelObject(Document& document, RenderStyle&& style, BaseTypeFlags baseTypeFlags)
-   : RenderLayerModelObject(document, WTFMove(style), baseTypeFlags | RenderBoxModelObjectFlag)
+   : RenderElement(document, WTFMove(style), baseTypeFlags | RenderBoxModelObjectFlag)
 {
 }
 
@@ -261,7 +261,7 @@ void RenderBoxModelObject::willBeDestroyed()
    if (!renderTreeBeingDestroyed())
        //view().imageQualityController().rendererWillBeDestroyed(*this);
 
-   RenderLayerModelObject::willBeDestroyed();
+   RenderElement::willBeDestroyed();
 }
 
 bool RenderBoxModelObject::hasVisibleBoxDecorationStyle() const
@@ -271,7 +271,7 @@ bool RenderBoxModelObject::hasVisibleBoxDecorationStyle() const
 
 void RenderBoxModelObject::updateFromStyle()
 {
-   RenderLayerModelObject::updateFromStyle();
+   RenderElement::updateFromStyle();
 
    // Set the appropriate bits for a box model object.  Since all bits are cleared in styleWillChange,
    // we only check for bits that could possibly be set to true.
@@ -1226,7 +1226,7 @@ static LayoutUnit resolveEdgeRelativeLength(const Length& length, Edge edge, Lay
   return result;
 }
     /**
-  BackgroundImageGeometry RenderBoxModelObject::calculateBackgroundImageGeometry(const RenderLayerModelObject* paintContainer, const FillLayer& fillLayer, const LayoutPoint& paintOffset,
+  BackgroundImageGeometry RenderBoxModelObject::calculateBackgroundImageGeometry(const RenderElement* paintContainer, const FillLayer& fillLayer, const LayoutPoint& paintOffset,
     const LayoutRect& borderBoxRect, RenderElement* backgroundObject) const
   {
     LayoutUnit left = 0;
@@ -1410,7 +1410,7 @@ static LayoutUnit resolveEdgeRelativeLength(const Length& length, Edge edge, Lay
 }
        */
 
-void RenderBoxModelObject::getGeometryForBackgroundImage(const RenderLayerModelObject* paintContainer, const LayoutPoint& paintOffset, FloatRect& destRect, FloatSize& phase, FloatSize& tileSize) const
+void RenderBoxModelObject::getGeometryForBackgroundImage(const RenderElement* paintContainer, const LayoutPoint& paintOffset, FloatRect& destRect, FloatSize& phase, FloatSize& tileSize) const
 {
   LayoutRect paintRect(destRect);
   auto geometry = calculateBackgroundImageGeometry(paintContainer, style().backgroundLayers(), paintOffset, paintRect);

@@ -905,7 +905,7 @@ void RenderFragmentedFlow::FragmentSearchAdapter::collectIfNeeded(const Fragment
         m_result = interval.data();
 }
 
-void RenderFragmentedFlow::mapLocalToContainer(const RenderLayerModelObject* repaintContainer, TransformState& transformState, MapCoordinatesFlags mode, bool* wasFixed) const
+void RenderFragmentedFlow::mapLocalToContainer(const RenderElement* repaintContainer, TransformState& transformState, MapCoordinatesFlags mode, bool* wasFixed) const
 {
     if (this == repaintContainer)
         return;

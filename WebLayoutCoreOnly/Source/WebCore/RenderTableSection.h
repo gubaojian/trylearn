@@ -55,8 +55,7 @@ public:
 class RenderTableSection final : public RenderBox {
     WTF_MAKE_ISO_ALLOCATED(RenderTableSection);
 public:
-    RenderTableSection(Element&, RenderStyle&&);
-    RenderTableSection(Document&, RenderStyle&&);
+    RenderTableSection(RenderStyle&&);
     virtual ~RenderTableSection();
 
     RenderTableRow* firstRow() const;
@@ -152,7 +151,7 @@ protected:
     void styleDidChange(StyleDifference, const RenderStyle* oldStyle) override;
 
 private:
-    static RenderPtr<RenderTableSection> createTableSectionWithStyle(Document&, const RenderStyle&);
+    static RenderPtr<RenderTableSection> createTableSectionWithStyle(const RenderStyle&);
 
     enum ShouldIncludeAllIntersectingCells {
         IncludeAllIntersectingCells,
@@ -178,8 +177,6 @@ private:
     LayoutUnit offsetTopForRowGroupBorder(RenderTableCell*, BoxSide borderSide, unsigned row);
     LayoutUnit verticalRowGroupBorderHeight(RenderTableCell*, const LayoutRect& rowGroupRect, unsigned row);
     LayoutUnit horizontalRowGroupBorderWidth(RenderTableCell*, const LayoutRect& rowGroupRect, unsigned row, unsigned column);
-
-    void imageChanged(WrappedImagePtr, const IntRect* = 0) override;
 
     bool nodeAtPoint(const HitTestRequest&, HitTestResult&, const HitTestLocation& locationInContainer, const LayoutPoint& accumulatedOffset, HitTestAction) override;
 
@@ -337,7 +334,7 @@ inline CellSpan RenderTableSection::fullTableRowSpan() const
 
 inline RenderPtr<RenderBox> RenderTableSection::createAnonymousBoxWithSameTypeAs(const RenderBox& renderer) const
 {
-    return RenderTableSection::createTableSectionWithStyle(renderer.document(), renderer.style());
+    return RenderTableSection::createTableSectionWithStyle(renderer.style());
 }
 
 } // namespace WebCore

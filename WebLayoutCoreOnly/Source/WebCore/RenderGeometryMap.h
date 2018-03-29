@@ -36,7 +36,6 @@ namespace WebCore {
 
 class RenderFragmentedFlow;
 class RenderLayer;
-class RenderLayerModelObject;
 class RenderView;
 class TransformState;
 
@@ -91,14 +90,14 @@ public:
     // Map to a container. Will assert that the container has been pushed onto this map.
     // A null container maps through the RenderView (including its scale transform, if any).
     // If the container is the RenderView, the scroll offset is applied, but not the scale.
-    FloatPoint mapToContainer(const FloatPoint&, const RenderLayerModelObject*) const;
-    FloatQuad mapToContainer(const FloatRect&, const RenderLayerModelObject*) const;
+    FloatPoint mapToContainer(const FloatPoint&, const RenderElement*) const;
+    FloatQuad mapToContainer(const FloatRect&, const RenderElement*) const;
     
     // Called by code walking the renderer or layer trees.
     void pushMappingsToAncestor(const RenderLayer*, const RenderLayer* ancestorLayer, bool respectTransforms = true);
     void popMappingsToAncestor(const RenderLayer*);
-    void pushMappingsToAncestor(const RenderObject*, const RenderLayerModelObject* ancestorRenderer);
-    void popMappingsToAncestor(const RenderLayerModelObject*);
+    void pushMappingsToAncestor(const RenderObject*, const RenderElement ancestorRenderer);
+    void popMappingsToAncestor(const RenderElement*);
     
     // The following methods should only be called by renderers inside a call to pushMappingsToAncestor().
 
@@ -112,7 +111,7 @@ public:
     void pushRenderFragmentedFlow(const RenderFragmentedFlow*);
 
 private:
-    void mapToContainer(TransformState&, const RenderLayerModelObject* container = nullptr) const;
+    void mapToContainer(TransformState&, const RenderElement* container = nullptr) const;
 
     void stepInserted(const RenderGeometryMapStep&);
     void stepRemoved(const RenderGeometryMapStep&);

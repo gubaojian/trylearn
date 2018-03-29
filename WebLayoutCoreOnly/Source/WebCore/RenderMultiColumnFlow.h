@@ -36,7 +36,7 @@ class RenderMultiColumnSpannerPlaceholder;
 class RenderMultiColumnFlow final : public RenderFragmentedFlow {
     WTF_MAKE_ISO_ALLOCATED(RenderMultiColumnFlow);
 public:
-    RenderMultiColumnFlow(Document&, RenderStyle&&);
+    RenderMultiColumnFlow(RenderStyle&&);
     ~RenderMultiColumnFlow();
 
     RenderBlockFlow* multiColumnBlockFlow() const { return downcast<RenderBlockFlow>(parent()); }

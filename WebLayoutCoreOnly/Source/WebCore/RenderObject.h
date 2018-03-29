@@ -42,7 +42,6 @@ class AffineTransform;
 class CSSAnimationController;
 class Color;
 class Cursor;
-class Document;
 class HitTestLocation;
 class HitTestRequest;
 class HitTestResult;
@@ -55,10 +54,9 @@ class RenderInline;
 class RenderBlock;
 class RenderBox;
 class RenderElement;
+class RenderLayer;
 class RenderFragmentedFlow;
 class RenderGeometryMap;
-class RenderLayer;
-class RenderLayerModelObject;
 class RenderFragmentContainer;
 class RenderTheme;
 class SelectionRangeData;
@@ -206,7 +204,7 @@ public:
     void outputRegionsInformation(WTF::TextStream&) const;
 #endif
 
-    //bool isPseudoElement() const { return node() && node()->isPseudoElement(); }
+    bool isPseudoElement() const { return false; }
 
     bool isRenderElement() const { return !isText(); }
     bool isRenderReplaced() const;
@@ -214,7 +212,7 @@ public:
     bool isRenderBlock() const;
     bool isRenderBlockFlow() const;
     bool isRenderInline() const;
-    bool isRenderLayerModelObject() const;
+    //bool isRenderElement() const;
 
     virtual bool isCounter() const { return false; }
     virtual bool isQuote() const { return false; }
@@ -496,7 +494,7 @@ public:
     // If repaintContainer and repaintContainerSkipped are not null, on return *repaintContainerSkipped
     // is true if the renderer returned is an ancestor of repaintContainer.
     RenderElement* container() const;
-    RenderElement* container(const RenderLayerModelObject* repaintContainer, bool& repaintContainerSkipped) const;
+    RenderElement* container(const RenderElement* repaintContainer, bool& repaintContainerSkipped) const;
 
     RenderBoxModelObject* offsetParent() const;
 
@@ -582,8 +580,8 @@ public:
     FloatQuad absoluteToLocalQuad(const FloatQuad&, MapCoordinatesFlags mode = UseTransforms) const;
 
     // Convert a local quad into the coordinate system of container, taking transforms into account.
-    WEBCORE_EXPORT FloatQuad localToContainerQuad(const FloatQuad&, const RenderLayerModelObject* repaintContainer, MapCoordinatesFlags = UseTransforms, bool* wasFixed = nullptr) const;
-    WEBCORE_EXPORT FloatPoint localToContainerPoint(const FloatPoint&, const RenderLayerModelObject* repaintContainer, MapCoordinatesFlags = UseTransforms, bool* wasFixed = nullptr) const;
+    WEBCORE_EXPORT FloatQuad localToContainerQuad(const FloatQuad&, const RenderElement* repaintContainer, MapCoordinatesFlags = UseTransforms, bool* wasFixed = nullptr) const;
+    WEBCORE_EXPORT FloatPoint localToContainerPoint(const FloatPoint&, const RenderElement* repaintContainer, MapCoordinatesFlags = UseTransforms, bool* wasFixed = nullptr) const;
 
     // Return the offset from the container() renderer (excluding transforms). In multi-column layout,
     // different offsets apply at different points, so return the offset that applies to the given point.
@@ -624,13 +622,13 @@ public:
     
     virtual CursorDirective getCursor(const LayoutPoint&, Cursor&) const;
 
-    // Return the RenderLayerModelObject in the container chain which is responsible for painting this object, or nullptr
+    // Return the RenderElement in the container chain which is responsible for painting this object, or nullptr
     // if painting is root-relative. This is the container that should be passed to the 'forRepaint'
     // methods.
-    RenderLayerModelObject* containerForRepaint() const;
+    RenderElement* containerForRepaint() const;
     // Actually do the repaint of rect r for this object which has been computed in the coordinate space
     // of repaintContainer. If repaintContainer is nullptr, repaint via the view.
-    void repaintUsingContainer(const RenderLayerModelObject* repaintContainer, const LayoutRect&, bool shouldClipToLayer = true) const;
+    void repaintUsingContainer(const RenderElement* repaintContainer, const LayoutRect&, bool shouldClipToLayer = true) const;
     
     // Repaint the entire object.  Called when, e.g., the color of a border changes, or when a border
     // style changes.
@@ -649,9 +647,9 @@ public:
         return clippedOverflowRectForRepaint(nullptr);
     }
     WEBCORE_EXPORT IntRect pixelSnappedAbsoluteClippedOverflowRect() const;
-    virtual LayoutRect clippedOverflowRectForRepaint(const RenderLayerModelObject* repaintContainer) const;
-    virtual LayoutRect rectWithOutlineForRepaint(const RenderLayerModelObject* repaintContainer, LayoutUnit outlineWidth) const;
-    virtual LayoutRect outlineBoundsForRepaint(const RenderLayerModelObject* /*repaintContainer*/, const RenderGeometryMap* = nullptr) const { return LayoutRect(); }
+    virtual LayoutRect clippedOverflowRectForRepaint(const RenderElement* repaintContainer) const;
+    virtual LayoutRect rectWithOutlineForRepaint(const RenderElement* repaintContainer, LayoutUnit outlineWidth) const;
+    virtual LayoutRect outlineBoundsForRepaint(const RenderElement* /*repaintContainer*/, const RenderGeometryMap* = nullptr) const { return LayoutRect(); }
 
     // Given a rect in the object's coordinate space, compute a rect suitable for repainting
     // that rect in view coordinates.
@@ -670,8 +668,8 @@ public:
         bool m_hasPositionFixedDescendant;
         bool m_dirtyRectIsFlipped;
     };
-    virtual LayoutRect computeRectForRepaint(const LayoutRect&, const RenderLayerModelObject* repaintContainer, RepaintContext = { }) const;
-    virtual FloatRect computeFloatRectForRepaint(const FloatRect&, const RenderLayerModelObject* repaintContainer, bool fixed = false) const;
+    virtual LayoutRect computeRectForRepaint(const LayoutRect&, const RenderElement* repaintContainer, RepaintContext = { }) const;
+    virtual FloatRect computeFloatRectForRepaint(const FloatRect&, const RenderElement* repaintContainer, bool fixed = false) const;
 
     virtual unsigned int length() const { return 1; }
 
@@ -695,7 +693,7 @@ public:
     // A single rectangle that encompasses all of the selected objects within this object.  Used to determine the tightest
     // possible bounding box for the selection.
     LayoutRect selectionRect(bool clipToVisibleContent = true) { return selectionRectForRepaint(nullptr, clipToVisibleContent); }
-    virtual LayoutRect selectionRectForRepaint(const RenderLayerModelObject* /*repaintContainer*/, bool /*clipToVisibleContent*/ = true) { return LayoutRect(); }
+    virtual LayoutRect selectionRectForRepaint(const RenderElement* /*repaintContainer*/, bool /*clipToVisibleContent*/ = true) { return LayoutRect(); }
 
     virtual bool canBeSelectionLeaf() const { return false; }
 
@@ -742,17 +740,17 @@ public:
 
     // Map points and quads through elements, potentially via 3d transforms. You should never need to call these directly; use
     // localToAbsolute/absoluteToLocal methods instead.
-    virtual void mapLocalToContainer(const RenderLayerModelObject* repaintContainer, TransformState&, MapCoordinatesFlags, bool* wasFixed = nullptr) const;
+    virtual void mapLocalToContainer(const RenderElement* repaintContainer, TransformState&, MapCoordinatesFlags, bool* wasFixed = nullptr) const;
     virtual void mapAbsoluteToLocalPoint(MapCoordinatesFlags, TransformState&) const;
 
     // Pushes state onto RenderGeometryMap about how to map coordinates from this renderer to its container, or ancestorToStopAt (whichever is encountered first).
     // Returns the renderer which was mapped to (container or ancestorToStopAt).
-    virtual const RenderObject* pushMappingToContainer(const RenderLayerModelObject* ancestorToStopAt, RenderGeometryMap&) const;
+    virtual const RenderObject* pushMappingToContainer(const RenderElement* ancestorToStopAt, RenderGeometryMap&) const;
     
     bool shouldUseTransformFromContainer(const RenderObject* container) const;
     void getTransformFromContainer(const RenderObject* container, const LayoutSize& offsetInContainer, TransformationMatrix&) const;
     
-    virtual void addFocusRingRects(Vector<LayoutRect>&, const LayoutPoint& /* additionalOffset */, const RenderLayerModelObject* /* paintContainer */ = nullptr) { };
+    virtual void addFocusRingRects(Vector<LayoutRect>&, const LayoutPoint& /* additionalOffset */, const RenderElement* /* paintContainer */ = nullptr) { };
 
     LayoutRect absoluteOutlineBounds() const
     {
@@ -800,7 +798,7 @@ private:
 
     //Node* generatingPseudoHostElement() const;
 
-    void propagateRepaintToParentWithOutlineAutoIfNeeded(const RenderLayerModelObject& repaintContainer, const LayoutRect& repaintRect) const;
+    void propagateRepaintToParentWithOutlineAutoIfNeeded(const RenderElement& repaintContainer, const LayoutRect& repaintRect) const;
 
     virtual bool isWBR() const { ASSERT_NOT_REACHED(); return false; }
 

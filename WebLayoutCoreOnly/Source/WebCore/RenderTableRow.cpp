@@ -211,7 +211,7 @@ void RenderTableRow::layout()
     clearNeedsLayout();
 }
 
-LayoutRect RenderTableRow::clippedOverflowRectForRepaint(const RenderLayerModelObject* repaintContainer) const
+LayoutRect RenderTableRow::clippedOverflowRectForRepaint(const RenderElement* repaintContainer) const
 {
     ASSERT(parent());
     // Rows and cells are in the same coordinate space. We need to both compute our overflow rect (which

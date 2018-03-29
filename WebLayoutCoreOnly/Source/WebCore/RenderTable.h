@@ -44,8 +44,7 @@ enum SkipEmptySectionsValue { DoNotSkipEmptySections, SkipEmptySections };
 class RenderTable : public RenderBlock {
     WTF_MAKE_ISO_ALLOCATED(RenderTable);
 public:
-    RenderTable(Element&, RenderStyle&&);
-    RenderTable(Document&, RenderStyle&&);
+    RenderTable(RenderStyle&&);
     virtual ~RenderTable();
 
     // Per CSS 3 writing-mode: "The first and second values of the 'border-spacing' property represent spacing between columns
@@ -274,7 +273,7 @@ protected:
     void simplifiedNormalFlowLayout() final;
 
 private:
-    static RenderPtr<RenderTable> createTableWithStyle(Document&, const RenderStyle&);
+    static RenderPtr<RenderTable> createTableWithStyle(const RenderStyle&);
 
     const char* renderName() const override { return "RenderTable"; }
 
@@ -383,7 +382,7 @@ inline bool isDirectionSame(const RenderBox* tableItem, const RenderBox* otherTa
 
 inline RenderPtr<RenderBox> RenderTable::createAnonymousBoxWithSameTypeAs(const RenderBox& renderer) const
 {
-    return RenderTable::createTableWithStyle(renderer.document(), renderer.style());
+    return RenderTable::createTableWithStyle(renderer.style());
 }
 
 } // namespace WebCore

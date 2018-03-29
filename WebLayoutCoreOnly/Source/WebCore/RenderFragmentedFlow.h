@@ -186,10 +186,10 @@ public:
 private:
     // Always create a RenderLayer for the RenderFragmentedFlow so that we
     // can easily avoid drawing the children directly.
-    bool requiresLayer() const final { return true; }
+    bool requiresLayer() const override { return true; }
 
 protected:
-    RenderFragmentedFlow(Document&, RenderStyle&&);
+    RenderFragmentedFlow(RenderStyle&&);
 
     RenderFragmentedFlow* locateEnclosingFragmentedFlow() const override { return const_cast<RenderFragmentedFlow*>(this); }
 
@@ -202,7 +202,7 @@ protected:
     void clearLinesToFragmentMap();
     void willBeDestroyed() override;
 
-    void mapLocalToContainer(const RenderLayerModelObject* repaintContainer, TransformState&, MapCoordinatesFlags, bool* wasFixed) const override;
+    void mapLocalToContainer(const RenderElement* repaintContainer, TransformState&, MapCoordinatesFlags, bool* wasFixed) const override;
 
     void updateFragmentsFragmentedFlowPortionRect();
     bool shouldRepaint(const LayoutRect&) const;

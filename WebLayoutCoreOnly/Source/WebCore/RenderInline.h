@@ -35,7 +35,6 @@ class RenderInline : public RenderBoxModelObject {
     WTF_MAKE_ISO_ALLOCATED(RenderInline);
 public:
     RenderInline(Element&, RenderStyle&&);
-    RenderInline(Document&, RenderStyle&&);
 
     void addChild(RenderPtr<RenderObject> newChild, RenderObject* beforeChild = 0) override;
 
@@ -83,7 +82,7 @@ public:
     
     LayoutSize offsetForInFlowPositionedInline(const RenderBox* child) const;
 
-    void addFocusRingRects(Vector<LayoutRect>&, const LayoutPoint& additionalOffset, const RenderLayerModelObject* paintContainer = 0) final;
+    void addFocusRingRects(Vector<LayoutRect>&, const LayoutPoint& additionalOffset, const RenderElement* paintContainer = 0) final;
     void paintOutline(PaintInfo&, const LayoutPoint&);
 
     bool alwaysCreateLineBoxes() const { return renderInlineAlwaysCreatesLineBoxes(); }
@@ -128,19 +127,18 @@ private:
 
     bool nodeAtPoint(const HitTestRequest&, HitTestResult&, const HitTestLocation& locationInContainer, const LayoutPoint& accumulatedOffset, HitTestAction) final;
 
-    bool requiresLayer() const override { return isInFlowPositioned() || createsGroup() || hasClipPath() || willChangeCreatesStackingContext(); }
 
     LayoutUnit offsetLeft() const final;
     LayoutUnit offsetTop() const final;
     LayoutUnit offsetWidth() const final { return linesBoundingBox().width(); }
     LayoutUnit offsetHeight() const final { return linesBoundingBox().height(); }
 
-    LayoutRect clippedOverflowRectForRepaint(const RenderLayerModelObject* repaintContainer) const override;
-    LayoutRect rectWithOutlineForRepaint(const RenderLayerModelObject* repaintContainer, LayoutUnit outlineWidth) const final;
-    LayoutRect computeRectForRepaint(const LayoutRect&, const RenderLayerModelObject* repaintContainer, RepaintContext = { }) const final;
+    LayoutRect clippedOverflowRectForRepaint(const RenderElement* repaintContainer) const override;
+    LayoutRect rectWithOutlineForRepaint(const RenderElement* repaintContainer, LayoutUnit outlineWidth) const final;
+    LayoutRect computeRectForRepaint(const LayoutRect&, const RenderElement* repaintContainer, RepaintContext = { }) const final;
 
-    void mapLocalToContainer(const RenderLayerModelObject* repaintContainer, TransformState&, MapCoordinatesFlags, bool* wasFixed) const override;
-    const RenderObject* pushMappingToContainer(const RenderLayerModelObject* ancestorToStopAt, RenderGeometryMap&) const override;
+    void mapLocalToContainer(const RenderElement* repaintContainer, TransformState&, MapCoordinatesFlags, bool* wasFixed) const override;
+    const RenderObject* pushMappingToContainer(const RenderElement* ancestorToStopAt, RenderGeometryMap&) const override;
 
     VisiblePosition positionForPoint(const LayoutPoint&, const RenderFragmentContainer*) final;
 
@@ -157,8 +155,6 @@ private:
 
     void updateHitTestResult(HitTestResult&, const LayoutPoint&) final;
 
-    void imageChanged(WrappedImagePtr, const IntRect* = 0) final;
-
 #if ENABLE(DASHBOARD_SUPPORT)
     void addAnnotatedRegions(Vector<AnnotatedRegionValue>&) final;
 #endif
@@ -170,7 +166,7 @@ private:
 
     bool willChangeCreatesStackingContext() const
     {
-        return style().willChange() && style().willChange()->canCreateStackingContext();
+        return false;//style().willChange() && style().willChange()->canCreateStackingContext();
     }
 
     RenderLineBoxList m_lineBoxes;   // All of the line boxes created for this inline flow.  For example, <i>Hello<br>world.</i> will have two <i> line boxes.

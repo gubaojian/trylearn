@@ -268,7 +268,7 @@ StyleDifference RenderElement::adjustStyleDifference(StyleDifference diff, unsig
     // If transform changed, and we are not composited, need to do a layout.
     if (contextSensitiveProperties & ContextSensitivePropertyTransform) {
         // FIXME: when transforms are taken into account for overflow, we will need to do a layout.
-        if (!hasLayer() || !downcast<RenderLayerModelObject>(*this).layer()->isComposited()) {
+        if (!hasLayer() || !downcast<RenderElement>(*this).layer()->isComposited()) {
             if (!hasLayer())
                 diff = std::max(diff, StyleDifferenceLayout);
             else {
@@ -282,7 +282,7 @@ StyleDifference RenderElement::adjustStyleDifference(StyleDifference diff, unsig
     }
 
     if (contextSensitiveProperties & ContextSensitivePropertyOpacity) {
-        if (!hasLayer() || !downcast<RenderLayerModelObject>(*this).layer()->isComposited())
+        if (!hasLayer() || !downcast<RenderElement>(*this).layer()->isComposited())
             diff = std::max(diff, StyleDifferenceRepaintLayer);
         else
             diff = std::max(diff, StyleDifferenceRecompositeLayer);
@@ -290,9 +290,9 @@ StyleDifference RenderElement::adjustStyleDifference(StyleDifference diff, unsig
 
     if (contextSensitiveProperties & ContextSensitivePropertyClipPath) {
         if (hasLayer()
-            && downcast<RenderLayerModelObject>(*this).layer()->isComposited()
+            && downcast<RenderElement>(*this).layer()->isComposited()
             && hasClipPath()
-            && RenderLayerCompositor::canCompositeClipPath(*downcast<RenderLayerModelObject>(*this).layer()))
+            && RenderLayerCompositor::canCompositeClipPath(*downcast<RenderElement>(*this).layer()))
             diff = std::max(diff, StyleDifferenceRecompositeLayer);
         else
             diff = std::max(diff, StyleDifferenceRepaint);
@@ -304,7 +304,7 @@ StyleDifference RenderElement::adjustStyleDifference(StyleDifference diff, unsig
     }
     
     if ((contextSensitiveProperties & ContextSensitivePropertyFilter) && hasLayer()) {
-        auto& layer = *downcast<RenderLayerModelObject>(*this).layer();
+        auto& layer = *downcast<RenderElement>(*this).layer();
         if (!layer.isComposited() || layer.paintsWithFilters())
             diff = std::max(diff, StyleDifferenceRepaintLayer);
         else
@@ -314,8 +314,8 @@ StyleDifference RenderElement::adjustStyleDifference(StyleDifference diff, unsig
     // The answer to requiresLayer() for plugins, iframes, and canvas can change without the actual
     // style changing, since it depends on whether we decide to composite these elements. When the
     // layer status of one of these elements changes, we need to force a layout.
-    if (diff < StyleDifferenceLayout && isRenderLayerModelObject()) {
-        if (hasLayer() != downcast<RenderLayerModelObject>(*this).requiresLayer())
+    if (diff < StyleDifferenceLayout && isRenderElement()) {
+        if (hasLayer() != downcast<RenderElement>(*this).requiresLayer())
             diff = StyleDifferenceLayout;
     }
 
@@ -505,7 +505,7 @@ void RenderElement::addChild(RenderPtr<RenderObject> newChild, RenderObject* bef
     // To avoid the problem alltogether, detect early if we're inside a hidden SVG subtree
     // and stop creating layers at all for these cases - they're not used anyways.
     if (child.hasLayer() && !layerCreationAllowedForSubtree())
-        downcast<RenderLayerModelObject>(child).layer()->removeOnlyThisLayer();
+        downcast<RenderElement>(child).layer()->removeOnlyThisLayer();
 
     SVGRenderSupport::childAdded(*this, child);
 }
@@ -690,7 +690,7 @@ static void addLayers(RenderElement& renderer, RenderLayer* parentLayer, RenderE
             beforeChild = newObject->parent()->findNextLayer(parentLayer, newObject);
             newObject = nullptr;
         }
-        parentLayer->addChild(downcast<RenderLayerModelObject>(renderer).layer(), beforeChild);
+        parentLayer->addChild(downcast<RenderElement>(renderer).layer(), beforeChild);
         return;
     }
 
@@ -714,7 +714,7 @@ void RenderElement::removeLayers(RenderLayer* parentLayer)
         return;
 
     if (hasLayer()) {
-        parentLayer->removeChild(downcast<RenderLayerModelObject>(*this).layer());
+        parentLayer->removeChild(downcast<RenderElement>(*this).layer());
         return;
     }
 
@@ -728,7 +728,7 @@ void RenderElement::moveLayers(RenderLayer* oldParent, RenderLayer* newParent)
         return;
 
     if (hasLayer()) {
-        RenderLayer* layer = downcast<RenderLayerModelObject>(*this).layer();
+        RenderLayer* layer = downcast<RenderElement>(*this).layer();
         ASSERT(oldParent == layer->parent());
         if (oldParent)
             oldParent->removeChild(layer);
@@ -747,7 +747,7 @@ RenderLayer* RenderElement::findNextLayer(RenderLayer* parentLayer, RenderObject
         return nullptr;
 
     // Step 1: If our layer is a child of the desired parent, then return our layer.
-    RenderLayer* ourLayer = hasLayer() ? downcast<RenderLayerModelObject>(*this).layer() : nullptr;
+    RenderLayer* ourLayer = hasLayer() ? downcast<RenderElement>(*this).layer() : nullptr;
     if (ourLayer && ourLayer->parent() == parentLayer)
         return ourLayer;
 
@@ -1153,7 +1153,7 @@ void RenderElement::setNeedsPositionedMovementLayout(const RenderStyle* oldStyle
     setNeedsPositionedMovementLayoutBit(true);
     markContainingBlocksForLayout();
     if (hasLayer()) {
-        if (oldStyle && style().diffRequiresLayerRepaint(*oldStyle, downcast<RenderLayerModelObject>(*this).layer()->isComposited()))
+        if (oldStyle && style().diffRequiresLayerRepaint(*oldStyle, downcast<RenderElement>(*this).layer()->isComposited()))
             setLayerNeedsFullRepaint();
         else
             setLayerNeedsFullRepaintForPositionedMovementLayout();
@@ -1217,7 +1217,7 @@ void RenderElement::layout()
     ASSERT(needsLayout());
     for (auto* child = firstChild(); child; child = child->nextSibling()) {
         if (child->needsLayout())
-            downcast<RenderElement>(*child).layout();
+            downcast<RenderElementx>(*child).layout();
         ASSERT(!child->needsLayout());
     }
     clearNeedsLayout();
@@ -1274,7 +1274,7 @@ static bool mustRepaintBackgroundOrBorder(const RenderElement& renderer)
     return false;
 }
 
-bool RenderElement::repaintAfterLayoutIfNeeded(const RenderLayerModelObject* repaintContainer, const LayoutRect& oldBounds, const LayoutRect& oldOutlineBox, const LayoutRect* newBoundsPtr, const LayoutRect* newOutlineBoxRectPtr)
+bool RenderElement::repaintAfterLayoutIfNeeded(const RenderElement* repaintContainer, const LayoutRect& oldBounds, const LayoutRect& oldOutlineBox, const LayoutRect* newBoundsPtr, const LayoutRect* newOutlineBoxRectPtr)
 {
     if (view().printing())
         return false; // Don't repaint if we're printing.
@@ -1402,7 +1402,7 @@ bool RenderElement::mayCauseRepaintInsideViewport(const IntRect* optionalViewpor
         // FIXME: Computing the overflow rect is expensive if any descendant has
         // its own self-painting layer. As a result, we prefer to abort early in
         // this case and assume it may cause us to repaint inside the viewport.
-        if (!hasLayer() || downcast<RenderLayerModelObject>(*this).layer()->firstChild())
+        if (!hasLayer() || downcast<RenderElement>(*this).layer()->firstChild())
             return true;
     }
 
@@ -2160,7 +2160,7 @@ bool RenderElement::hasSelfPaintingLayer() const
 {
     if (!hasLayer())
         return false;
-    auto& layerModelObject = downcast<RenderLayerModelObject>(*this);
+    auto& layerModelObject = downcast<RenderElement>(*this);
     return layerModelObject.hasSelfPaintingLayer();
 }
 
