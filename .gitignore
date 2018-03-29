@@ -29,3 +29,5 @@ im/node_modules/
 *.sst
 RocksDB/store/*
 HelloOpenGLES20/app/build/
+WebLayoutCore/cmake-build-debug/
+WebLayoutCoreOnly/cmake-build-debug/

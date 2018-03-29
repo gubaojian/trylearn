@@ -167,6 +167,11 @@ public class LiteBrowser extends View implements Handler.Callback {
     }
 
     @Override
+    public void draw(Canvas canvas) {
+        super.draw(canvas);
+    }
+
+    @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         if(ptr != 0  && state >= STATE_LAYOUT_PASS){
