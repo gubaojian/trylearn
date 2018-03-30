@@ -71,6 +71,7 @@ set(WebCore_HEADERS
         RenderObject.h
         RenderElement.h
         RenderBoxModelObject.h
+        RenderBox.h
 )
 
 set(WebCore_SOURCES
@@ -122,6 +123,7 @@ set(WebCore_SOURCES
         RenderObject.cpp
         RenderElement.cpp
         RenderBoxModelObject.cpp
+        RenderBox.cpp
 )
 
 
