@@ -116,7 +116,7 @@ RenderPtr<RenderElement> RenderElement::createFor(RenderStyle&& style, RendererC
 
     switch (style.display()) {
     case NONE:
-    case CONTENTS:
+    case CONTENTS: //FIXME
         return nullptr;
     case INLINE:
         if (creationType == CreateAllRenderers)
