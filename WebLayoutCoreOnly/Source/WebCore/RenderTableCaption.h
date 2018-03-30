@@ -28,10 +28,10 @@ class RenderTable;
 class RenderTableCaption final : public RenderBlockFlow {
     WTF_MAKE_ISO_ALLOCATED(RenderTableCaption);
 public:
-    RenderTableCaption(Element&, RenderStyle&&);
+    RenderTableCaption(RenderStyle&&);
     virtual ~RenderTableCaption();
 
-    Element& element() const { return downcast<Element>(nodeForNonAnonymous()); }
+    //Element& element() const { return downcast<Element>(nodeForNonAnonymous()); }
 
     LayoutUnit containingBlockLogicalWidthForContent() const override { return containingBlock()->logicalWidth(); }
     

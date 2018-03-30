@@ -5,6 +5,7 @@
 #include <wtf/Threading.h>
 #include "Source/WebCore/RenderStyle.h"
 #include "Source/WebCore/IntSize.h"
+#include "Source/WebCore/RenderObject.h"
 
 using namespace WebCore;
 

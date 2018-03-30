@@ -39,8 +39,7 @@ enum IncludeBorderColorOrNot { DoNotIncludeBorderColor, IncludeBorderColor };
 class RenderTableCell final : public RenderBlockFlow {
     WTF_MAKE_ISO_ALLOCATED(RenderTableCell);
 public:
-    RenderTableCell(Element&, RenderStyle&&);
-    RenderTableCell(Document&, RenderStyle&&);
+    RenderTableCell(RenderStyle&&);
     
     unsigned colSpan() const;
     unsigned rowSpan() const;
@@ -139,7 +138,7 @@ protected:
     void computePreferredLogicalWidths() override;
 
 private:
-    static RenderPtr<RenderTableCell> createTableCellWithStyle(Document&, const RenderStyle&);
+    static RenderPtr<RenderTableCell> createTableCellWithStyle(const RenderStyle&);
 
     const char* renderName() const override { return (isAnonymous() || isPseudoElement()) ? "RenderTableCell (anonymous)" : "RenderTableCell"; }
 
@@ -291,7 +290,7 @@ inline LayoutUnit RenderTableCell::logicalHeightForRowSizing() const
     LayoutUnit styleLogicalHeight = valueForLength(style().logicalHeight(), 0);
     // In strict mode, box-sizing: content-box do the right thing and actually add in the border and padding.
     // Call computedCSSPadding* directly to avoid including implicitPadding.
-    if (!document().inQuirksMode() && style().boxSizing() != BORDER_BOX)
+    if (style().boxSizing() != BORDER_BOX)
         styleLogicalHeight += computedCSSPaddingBefore() + computedCSSPaddingAfter() + borderBefore() + borderAfter();
     return std::max(styleLogicalHeight, adjustedLogicalHeight);
 }
@@ -378,7 +377,7 @@ inline void RenderTableCell::invalidateHasEmptyCollapsedBorders()
 
 inline RenderPtr<RenderBox> RenderTableCell::createAnonymousBoxWithSameTypeAs(const RenderBox& renderer) const
 {
-    return RenderTableCell::createTableCellWithStyle(renderer.document(), renderer.style());
+    return RenderTableCell::createTableCellWithStyle(renderer.style());
 }
 
 } // namespace WebCore

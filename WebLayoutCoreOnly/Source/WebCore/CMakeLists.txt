@@ -69,6 +69,8 @@ set(WebCore_HEADERS
         HashTools.h
         RenderObjectEnums.h
         RenderObject.h
+        RenderElement.h
+        RenderBoxModelObject.h
 )
 
 set(WebCore_SOURCES
@@ -118,6 +120,8 @@ set(WebCore_SOURCES
         CSSPrimitiveValue.cpp
         CSSValueKeywords.cpp
         RenderObject.cpp
+        RenderElement.cpp
+        RenderBoxModelObject.cpp
 )
 
 

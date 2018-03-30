@@ -35,8 +35,8 @@ class RenderTableCell;
 class RenderTableCol final : public RenderBox {
     WTF_MAKE_ISO_ALLOCATED(RenderTableCol);
 public:
-    RenderTableCol(Element&, RenderStyle&&);
-    Element& element() const { return downcast<Element>(nodeForNonAnonymous()); }
+    RenderTableCol(RenderStyle&&);
+    //Element& element() const { return downcast<Element>(nodeForNonAnonymous()); }
 
     void clearPreferredLogicalWidthsDirtyBits();
 
@@ -78,7 +78,7 @@ private:
     bool requiresLayer() const override { return false; }
 
     LayoutRect clippedOverflowRectForRepaint(const RenderElement* repaintContainer) const override;
-    void imageChanged(WrappedImagePtr, const IntRect* = 0) override;
+    //void imageChanged(WrappedImagePtr, const IntRect* = 0) override;
 
     void styleDidChange(StyleDifference, const RenderStyle* oldStyle) override;
     void paint(PaintInfo&, const LayoutPoint&) override { }

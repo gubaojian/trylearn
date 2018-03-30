@@ -34,7 +34,7 @@ class RenderFragmentContainer;
 class RenderInline : public RenderBoxModelObject {
     WTF_MAKE_ISO_ALLOCATED(RenderInline);
 public:
-    RenderInline(Element&, RenderStyle&&);
+    RenderInline(RenderStyle&&);
 
     void addChild(RenderPtr<RenderObject> newChild, RenderObject* beforeChild = 0) override;
 
