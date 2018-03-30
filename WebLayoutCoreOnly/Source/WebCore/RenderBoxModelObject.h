@@ -125,7 +125,7 @@ public:
     virtual LayoutUnit offsetWidth() const = 0;
     virtual LayoutUnit offsetHeight() const = 0;
 
-    virtual void updateFromStyle(){};
+    virtual void updateFromStyle();
 
     virtual bool requiresLayer()  const { return false; }
 
