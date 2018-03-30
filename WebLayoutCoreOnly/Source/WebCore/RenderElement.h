@@ -25,11 +25,14 @@
 #include "LengthFunctions.h"
 #include "RenderObject.h"
 #include "RenderPtr.h"
+#include "LayoutState.h"
+#include "LayoutContext.h"
 
 namespace WebCore {
 
 class ControlStates;
 class RenderBlock;
+class LayoutContext;
 
 class RenderElement : public RenderObject {
     WTF_MAKE_ISO_ALLOCATED(RenderElement);
@@ -63,6 +66,13 @@ public:
     //Element* element() const { return downcast<Element>(RenderObject::node()); }
     //Element* nonPseudoElement() const { return downcast<Element>(RenderObject::nonPseudoNode()); }
     //Element* generatingElement() const;
+
+    LayoutState* layoutState(){
+        static LayoutState state;
+        return &state;
+    };
+
+
 
     RenderObject* firstChild() const { return m_firstChild; }
     RenderObject* lastChild() const { return m_lastChild; }
@@ -115,18 +125,16 @@ public:
     void setNeedsPositionedMovementLayout(const RenderStyle* oldStyle);
     void setNeedsSimplifiedNormalFlowLayout();
 
-    virtual void paint(PaintInfo&, const LayoutPoint&) = 0;
 
-    // inline-block elements paint all phases atomically. This function ensures that. Certain other elements
-    // (grid items, flex items) require this behavior as well, and this function exists as a helper for them.
-    // It is expected that the caller will call this function independent of the value of paintInfo.phase.
-    void paintAsInlineBlock(PaintInfo&, const LayoutPoint&);
 
     // Recursive function that computes the size and position of this object and all its descendants.
     virtual void layout();
 
     /* This function performs a layout only if one is needed. */
     void layoutIfNeeded() { if (needsLayout()) layout(); }
+
+    const LayoutContext& layoutContext() const { return m_layoutContext; }
+    LayoutContext& layoutContext() { return m_layoutContext; }
 
     // Updates only the local style ptr of the object. Does not update the state of the object,
     // and so only should be called when the style is known not to have changed (or from setStyle).
@@ -229,6 +237,7 @@ public:
     void setIsFirstLetter() { m_isFirstLetter = true; }
 
     void destroyLeftoverChildren();
+
 
 protected:
     enum BaseTypeFlag {
@@ -350,6 +359,7 @@ private:
     RenderObject* m_lastChild;
 
     RenderStyle m_style;
+    LayoutContext m_layoutContext;
 
     // FIXME: Get rid of this hack.
     // Store state between styleWillChange and styleDidChange

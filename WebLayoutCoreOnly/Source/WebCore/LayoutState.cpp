@@ -277,7 +277,7 @@ bool LayoutState::layoutDeltaMatches(LayoutSize delta) const
 #endif
 
 LayoutStateMaintainer::LayoutStateMaintainer(RenderBox& root, LayoutSize offset, bool disablePaintOffsetCache, LayoutUnit pageHeight, bool pageHeightChanged)
-    : m_context(nullptr)
+    : m_context(root.layoutContext())
      ,m_paintOffsetCacheIsDisabled(disablePaintOffsetCache)
 {
     m_didPushLayoutState = m_context.pushLayoutState(root, offset, pageHeight, pageHeightChanged);
@@ -337,7 +337,7 @@ SubtreeLayoutStateMaintainer::~SubtreeLayoutStateMaintainer()
 }
 
 PaginatedLayoutStateMaintainer::PaginatedLayoutStateMaintainer(RenderBlockFlow& flow)
-    : m_context(nullptr)
+    : m_context(flow.layoutContext())
     , m_pushed(m_context.pushLayoutStateForPaginationIfNeeded(flow))
 {
 }

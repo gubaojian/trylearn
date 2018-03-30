@@ -145,7 +145,7 @@ public:
     static RenderPtr<RenderTableSection> createAnonymousWithParentRenderer(const RenderTable&);
     RenderPtr<RenderBox> createAnonymousBoxWithSameTypeAs(const RenderBox&) const override;
     
-    void paint(PaintInfo&, const LayoutPoint&) override;
+    //void paint(PaintInfo&, const LayoutPoint&) override;
 
 protected:
     void styleDidChange(StyleDifference, const RenderStyle* oldStyle) override;

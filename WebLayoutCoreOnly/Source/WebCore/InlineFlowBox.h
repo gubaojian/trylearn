@@ -33,10 +33,6 @@ class RenderLineBoxList;
 class Font;
 class VerticalPositionCache;
 
-struct GlyphOverflow;
-
-typedef HashMap<const InlineTextBox*, std::pair<Vector<const Font*>, GlyphOverflow>> GlyphOverflowAndFallbackFontsMap;
-
 class InlineFlowBox : public InlineBox {
 public:
     explicit InlineFlowBox(RenderBoxModelObject& renderer)
@@ -176,21 +172,16 @@ public:
             clearKnownToHaveNoOverflow();
     }
 
-    void computeLogicalBoxHeights(RootInlineBox&, LayoutUnit& maxPositionTop, LayoutUnit& maxPositionBottom,
-        int& maxAscent, int& maxDescent, bool& setMaxAscent, bool& setMaxDescent,
-        bool strictMode, GlyphOverflowAndFallbackFontsMap&, FontBaseline, VerticalPositionCache&);
     void adjustMaxAscentAndDescent(int& maxAscent, int& maxDescent,
         int maxPositionTop, int maxPositionBottom);
     void placeBoxesInBlockDirection(LayoutUnit logicalTop, LayoutUnit maxHeight, int maxAscent, bool strictMode, LayoutUnit& lineTop, LayoutUnit& lineBottom, bool& setLineTop,
         LayoutUnit& lineTopIncludingMargins, LayoutUnit& lineBottomIncludingMargins, bool& hasAnnotationsBefore, bool& hasAnnotationsAfter, FontBaseline);
     void flipLinesInBlockDirection(LayoutUnit lineTop, LayoutUnit lineBottom);
-    bool requiresIdeographicBaseline(const GlyphOverflowAndFallbackFontsMap&) const;
 
     LayoutUnit computeOverAnnotationAdjustment(LayoutUnit allowedPosition) const;
     LayoutUnit computeUnderAnnotationAdjustment(LayoutUnit allowedPosition) const;
 
-    void computeOverflow(LayoutUnit lineTop, LayoutUnit lineBottom, GlyphOverflowAndFallbackFontsMap&);
-    
+
     void removeChild(InlineBox* child);
 
     RenderObject::SelectionState selectionState() override;
@@ -295,7 +286,7 @@ private:
 
     void addBoxShadowVisualOverflow(LayoutRect& logicalVisualOverflow);
     void addBorderOutsetVisualOverflow(LayoutRect& logicalVisualOverflow);
-    void addTextBoxVisualOverflow(InlineTextBox&, GlyphOverflowAndFallbackFontsMap&, LayoutRect& logicalVisualOverflow);
+   // void addTextBoxVisualOverflow(InlineTextBox&, GlyphOverflowAndFallbackFontsMap&, LayoutRect& logicalVisualOverflow);
     void addOutlineVisualOverflow(LayoutRect& logicalVisualOverflow);
     void addReplacedChildOverflow(const InlineBox*, LayoutRect& logicalLayoutOverflow, LayoutRect& logicalVisualOverflow);
     void constrainToLineTopAndBottomIfNeeded(LayoutRect&) const;

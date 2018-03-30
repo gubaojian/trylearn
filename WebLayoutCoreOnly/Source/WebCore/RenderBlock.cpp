@@ -2491,17 +2491,6 @@ LayoutUnit RenderBlock::adjustContentBoxLogicalHeightForBoxSizing(std::optional<
     return std::max(LayoutUnit(), result);
 }
 
-void RenderBlock::paintExcludedChildrenInBorder(PaintInfo& paintInfo, const LayoutPoint& paintOffset)
-{
-    if (!isFieldset())
-        return;
-    
-    RenderBox* box = findFieldsetLegend();
-    if (!box || !box->isExcludedFromNormalLayout() || box->hasSelfPaintingLayer())
-        return;
-    
-    LayoutPoint childPoint = flipForWritingModeForChild(box, paintOffset);
-    box->paintAsInlineBlock(paintInfo, childPoint);
-}
+
     
 } // namespace WebCore

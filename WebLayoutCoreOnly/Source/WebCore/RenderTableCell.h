@@ -76,10 +76,10 @@ public:
 
     void layout() override;
 
-    void paint(PaintInfo&, const LayoutPoint&) override;
+    //void paint(PaintInfo&, const LayoutPoint&) override;
 
-    void paintCollapsedBorders(PaintInfo&, const LayoutPoint&);
-    void paintBackgroundsBehindCell(PaintInfo&, const LayoutPoint&, RenderElement* backgroundObject);
+    //void paintCollapsedBorders(PaintInfo&, const LayoutPoint&);
+    //void paintBackgroundsBehindCell(PaintInfo&, const LayoutPoint&, RenderElement* backgroundObject);
 
     LayoutUnit cellBaselinePosition() const;
     bool isBaselineAligned() const;

@@ -318,10 +318,7 @@ protected:
 
     LayoutUnit marginIntrinsicLogicalWidthForChild(RenderBox&) const;
 
-    void paint(PaintInfo&, const LayoutPoint&) override;
-    void paintObject(PaintInfo&, const LayoutPoint&) override;
-    virtual void paintChildren(PaintInfo& forSelf, const LayoutPoint&, PaintInfo& forChild, bool usePrintRect);
-    enum PaintBlockType { PaintAsBlock, PaintAsInlineBlock };
+     enum PaintBlockType { PaintAsBlock, PaintAsInlineBlock };
     bool paintChild(RenderBox&, PaintInfo& forSelf, const LayoutPoint&, PaintInfo& forChild, bool usePrintRect, PaintBlockType paintType = PaintAsBlock);
    
     LayoutUnit logicalRightOffsetForLine(LayoutUnit logicalTop, LayoutUnit fixedOffset, bool applyTextIndent, LayoutUnit logicalHeight = 0) const

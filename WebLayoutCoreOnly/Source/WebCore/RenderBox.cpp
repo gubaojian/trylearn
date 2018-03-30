@@ -24,6 +24,7 @@
 
 #include "config.h"
 #include "RenderBox.h"
+#include "LayoutContext.h"
 
 //#include "CSSFontSelector.h"
 //#include "ControlStates.h"
@@ -418,7 +419,7 @@ void RenderBox::updateGridPositionAfterStyleChange(const RenderStyle& style, con
     // It should be possible to not dirty the grid in some cases (like moving an
     // explicitly placed grid item).
     // For now, it's more simple to just always recompute the grid.
-    downcast<RenderGrid>(*parent()).dirtyGrid();
+    //FIXME GRIDLAYOUT downcast<RenderGrid>(*parent()).dirtyGrid();
 }
 
 

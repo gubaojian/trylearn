@@ -61,7 +61,6 @@ private:
     void node() const = delete;
 
     bool canHaveChildren() const override { return false; }
-    void paint(PaintInfo&, const LayoutPoint&) override { }
 
     VisiblePosition positionForPoint(const LayoutPoint&, const RenderFragmentContainer*) override;
     int caretMinOffset() const override;

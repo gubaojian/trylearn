@@ -73,6 +73,9 @@ set(WebCore_HEADERS
         RenderBoxModelObject.h
         RenderBox.h
         RenderBlock.h
+        RenderBlockFlow.h
+        LayoutContext.h
+        LayoutState.h
 )
 
 set(WebCore_SOURCES
@@ -126,6 +129,9 @@ set(WebCore_SOURCES
         RenderBoxModelObject.cpp
         RenderBox.cpp
         RenderBlock.cpp
+        RenderBlockFlow.cpp
+        LayoutContext.cpp
+        LayoutState.cpp
 )
 
 

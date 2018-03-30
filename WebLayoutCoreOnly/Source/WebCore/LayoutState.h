@@ -25,9 +25,10 @@
 
 #pragma once
 
-//#include "LayoutContext.h"
+#include "LayoutContext.h"
 #include "LayoutRect.h"
 #include <wtf/Noncopyable.h>
+#include <wtf/WeakPtr.h>
 
 namespace WebCore {
 
@@ -53,7 +54,7 @@ public:
 #endif
     {
     }
-    LayoutState(RenderBox&, const LayoutSize& offset, LayoutUnit pageHeight, bool pageHeightChanged);
+    LayoutState(const LayoutContext::LayoutStateStack&, RenderBox&, const LayoutSize& offset, LayoutUnit pageHeight, bool pageHeightChanged);
     enum class IsPaginated { No, Yes };
     explicit LayoutState(RenderElement&, IsPaginated = IsPaginated::No);
 
@@ -93,9 +94,9 @@ private:
     void computeOffsets(const LayoutState& ancestor, RenderBox&, LayoutSize offset);
     void computeClipRect(const LayoutState& ancestor, RenderBox&);
     // FIXME: webkit.org/b/179440 these functions should be part of the pagination code/LayoutContext.
-    void computePaginationInformation(RenderBox&, LayoutUnit pageLogicalHeight, bool pageLogicalHeightChanged);
+    void computePaginationInformation(const LayoutContext::LayoutStateStack&, RenderBox&, LayoutUnit pageLogicalHeight, bool pageLogicalHeightChanged);
     void propagateLineGridInfo(const LayoutState& ancestor, RenderBox&);
-    void establishLineGrid(RenderBlockFlow&);
+    void establishLineGrid(const LayoutContext::LayoutStateStack&, RenderBlockFlow&);
     void computeLineGridPaginationOrigin(const RenderMultiColumnFlow&);
 
     // Do not add anything apart from bitfields. See https://bugs.webkit.org/show_bug.cgi?id=100173

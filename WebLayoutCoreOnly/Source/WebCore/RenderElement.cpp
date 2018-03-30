@@ -69,6 +69,7 @@ struct SameSizeAsRenderElement : public RenderObject {
     void* firstChild;
     void* lastChild;
     RenderStyle style;
+    LayoutContext context;
 };
 
 static_assert(sizeof(RenderElement) == sizeof(SameSizeAsRenderElement), "RenderElement should stay small");
@@ -120,7 +121,7 @@ RenderPtr<RenderElement> RenderElement::createFor(RenderStyle&& style, RendererC
         return nullptr;
     case INLINE:
         if (creationType == CreateAllRenderers)
-            return createRenderer<RenderInline>(WTFMove(style));
+            //return createRenderer<RenderInline>(WTFMove(style));
         FALLTHROUGH; // Fieldsets should make a block flow if display:inline is set.
     case BLOCK:
     case INLINE_BLOCK:
@@ -132,33 +133,33 @@ RenderPtr<RenderElement> RenderElement::createFor(RenderStyle&& style, RendererC
     case INLINE_FLEX:
     case WEBKIT_FLEX:
     case WEBKIT_INLINE_FLEX:
-        return createRenderer<RenderFlexibleBox>(WTFMove(style));
+        //return createRenderer<RenderFlexibleBox>(WTFMove(style));
     case GRID:
     case INLINE_GRID:
-        return createRenderer<RenderGrid>(WTFMove(style));
+        //return createRenderer<RenderGrid>(WTFMove(style));
     case BOX:
     case INLINE_BOX:
-        return createRenderer<RenderDeprecatedFlexibleBox>(WTFMove(style));
+        //return createRenderer<RenderDeprecatedFlexibleBox>(WTFMove(style));
     default: {
         if (creationType == OnlyCreateBlockAndFlexboxRenderers)
             return createRenderer<RenderBlockFlow>(WTFMove(style));
         switch (style.display()) {
         case TABLE:
         case INLINE_TABLE:
-            return createRenderer<RenderTable>( WTFMove(style));
+           // return createRenderer<RenderTable>( WTFMove(style));
         case TABLE_CELL:
-            return createRenderer<RenderTableCell>(WTFMove(style));
+           // return createRenderer<RenderTableCell>(WTFMove(style));
         case TABLE_CAPTION:
-            return createRenderer<RenderTableCaption>(WTFMove(style));
+            //return createRenderer<RenderTableCaption>(WTFMove(style));
         case TABLE_ROW_GROUP:
         case TABLE_HEADER_GROUP:
         case TABLE_FOOTER_GROUP:
-            return createRenderer<RenderTableSection>(WTFMove(style));
+            //return createRenderer<RenderTableSection>(WTFMove(style));
         case TABLE_ROW:
-            return createRenderer<RenderTableRow>(WTFMove(style));
+            //return createRenderer<RenderTableRow>(WTFMove(style));
         case TABLE_COLUMN_GROUP:
         case TABLE_COLUMN:
-            return createRenderer<RenderTableCol>(WTFMove(style));
+            //return createRenderer<RenderTableCol>(WTFMove(style));
         default:
             break;
         }

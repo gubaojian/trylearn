@@ -6,6 +6,7 @@
 #include "Source/WebCore/RenderStyle.h"
 #include "Source/WebCore/IntSize.h"
 #include "Source/WebCore/RenderObject.h"
+#include "Source/WebCore/RenderElement.h"
 
 using namespace WebCore;
 
@@ -17,7 +18,7 @@ int main() {
     WebCore::RenderStyle renderStyle = WebCore::RenderStyle::create();
     IntSize size(10, 10);
     renderStyle.setBorderRadius(size);
-    renderStyle.setDisplay(FLEX);
+    renderStyle.setDisplay(BLOCK);
     renderStyle.setWidth(Length(10, Auto));
     renderStyle.setHeight(Length(100, Percent));
     renderStyle.border().top();
@@ -31,6 +32,10 @@ int main() {
     renderStyle.setDirection(LTR);
     //renderStyle.fontMetrics();
     //renderStyle.setContent()
+
+    RenderPtr<RenderElement> root = RenderElement::createFor(static_cast<RenderStyle &&>(renderStyle));
+
+    root.get()->layout();
 
     std::cout <<  "is null " << (renderStyle.hasBorder()) << std::endl;
     std::cout << "Hello, World!" << renderStyle.width().intValue()  << "top" <<renderStyle.border().top().width() << std::endl;

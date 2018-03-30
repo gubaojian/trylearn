@@ -123,7 +123,6 @@ private:
 
     void layout() final { ASSERT_NOT_REACHED(); } // Do nothing for layout()
 
-    void paint(PaintInfo&, const LayoutPoint&) final;
 
     bool nodeAtPoint(const HitTestRequest&, HitTestResult&, const HitTestLocation& locationInContainer, const LayoutPoint& accumulatedOffset, HitTestAction) final;
 

@@ -80,7 +80,7 @@ private:
     bool requiresLayer() const override { return false; //hasOverflowClip() || hasTransformRelatedProperty() || hasHiddenBackface() || hasClipPath() || createsGroup() || isStickilyPositioned();
          }
 
-    void paint(PaintInfo&, const LayoutPoint&) override;
+    //void paint(PaintInfo&, const LayoutPoint&) override;
 
 
     void styleDidChange(StyleDifference, const RenderStyle* oldStyle) override;

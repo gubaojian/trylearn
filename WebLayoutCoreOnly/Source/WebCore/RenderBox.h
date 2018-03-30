@@ -42,6 +42,8 @@ enum OverlayScrollbarSizeRelevancy { IgnoreOverlayScrollbarSize, IncludeOverlayS
 
 enum ShouldComputePreferred { ComputeActual, ComputePreferred };
 
+
+
 class RenderBox : public RenderBoxModelObject {
     WTF_MAKE_ISO_ALLOCATED(RenderBox);
 public:
@@ -661,7 +663,7 @@ protected:
 private:
     bool replacedMinMaxLogicalHeightComputesAsNone(SizeType) const;
 
-    void updateShapeOutsideInfoAfterStyleChange(const RenderStyle&, const RenderStyle* oldStyle);
+    //void updateShapeOutsideInfoAfterStyleChange(const RenderStyle&, const RenderStyle* oldStyle);
 
     void updateGridPositionAfterStyleChange(const RenderStyle&, const RenderStyle* oldStyle);
 

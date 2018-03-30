@@ -281,10 +281,6 @@ private:
 
     bool avoidsFloats() const final { return true; }
 
-    void paint(PaintInfo&, const LayoutPoint&) final;
-    void paintObject(PaintInfo&, const LayoutPoint&) final;
-    void paintBoxDecorations(PaintInfo&, const LayoutPoint&) final;
-    void paintMask(PaintInfo&, const LayoutPoint&) final;
     void layout() final;
     void computeIntrinsicLogicalWidths(LayoutUnit& minWidth, LayoutUnit& maxWidth) const final;
     void computePreferredLogicalWidths() override;

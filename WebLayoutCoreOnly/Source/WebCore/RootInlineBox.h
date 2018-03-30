@@ -81,7 +81,7 @@ public:
 
     int blockDirectionPointInLine() const;
 
-    LayoutUnit alignBoxesInBlockDirection(LayoutUnit heightOfBlock, GlyphOverflowAndFallbackFontsMap&, VerticalPositionCache&);
+    //LayoutUnit alignBoxesInBlockDirection(LayoutUnit heightOfBlock, GlyphOverflowAndFallbackFontsMap&, VerticalPositionCache&);
     void setLineTopBottomPositions(LayoutUnit top, LayoutUnit bottom, LayoutUnit topWithLeading, LayoutUnit bottomWithLeading)
     { 
         m_lineTop = top; 
@@ -168,7 +168,7 @@ public:
 
     LayoutRect paddedLayoutOverflowRect(LayoutUnit endPadding) const;
 
-    void ascentAndDescentForBox(InlineBox&, GlyphOverflowAndFallbackFontsMap&, int& ascent, int& descent, bool& affectsAscent, bool& affectsDescent) const;
+    //void ascentAndDescentForBox(InlineBox&, GlyphOverflowAndFallbackFontsMap&, int& ascent, int& descent, bool& affectsAscent, bool& affectsDescent) const;
     LayoutUnit verticalPositionForBox(InlineBox*, VerticalPositionCache&);
     bool fitsToGlyphs() const;
     bool includesRootLineBoxFontOrLeading() const;
